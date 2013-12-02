@@ -14,6 +14,7 @@ public class ACCase extends Case {
 		Object Vdir = occ.get("Vdir");
 		occ.removeField("Vpoint");
 		occ.removeField("Vdir");
+		occ.put("Pays", LectureFichier.pays);
 		coll.insert(occ);
 		occ.clear();
 		occ.put("Vpoint", Vpoint);
