@@ -6,7 +6,6 @@ import java.util.TimerTask;
 public class Repeteur {
 	public static void main(String...args) {
 		TimerTask task = new TimerTask() {
-			@Override
 			public void run() {
 				Executeur exec = new Executeur();
 				exec.main();
