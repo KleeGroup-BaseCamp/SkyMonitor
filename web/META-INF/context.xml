@@ -1,3 +1,0 @@
-<Context>
-    <Parameter name="mongodatabase" value="db2" override="true" />
-</Context>
