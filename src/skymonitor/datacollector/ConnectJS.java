@@ -3,7 +3,7 @@ package skymonitor.datacollector;
 import java.io.InputStream;
 import java.net.*;
 
-public class ConnectionsDeconnectionsJS {
+public class ConnectJS {
 	
 	//Fonction de deconnection au JS
 	public static void connectionJS() {

@@ -5,13 +5,20 @@ import java.net.URLConnection;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Main {
+import javax.servlet.*;
+
+import com.sun.xml.internal.bind.v2.ContextFactory;
+
+import sun.org.mozilla.javascript.internal.Context;
+
+public class dataCollector {
     
     public static void main(String...args)
     {
-        //Connection BD MDB à insérer ici
-        
-        //ouverture du repeteur
+    	String server = "localhost";
+    	String database = "db2";
+    	Database databaseInstance = new Database (server, database);
+    	
         TimerTask task = new TimerTask()
         {
             @Override
@@ -22,7 +29,6 @@ public class Main {
                 try {
                     URL sourceDonnees = new URL("http://db.flightradar24.com/zones/full_all.js"); // Définition de la source de données
                     URLConnection connexion = sourceDonnees.openConnection(); // Ouverture de la connection
-                    
                     
                     InputStream  flux = connexion.getInputStream(); // Définition du flux de données
                     int donneesALire = connexion.getContentLength(); //Lecture des données
