@@ -6,48 +6,6 @@
 
 <web-app>
 
-<!--
-  <servlet>
-    <servlet-name>Jersey REST Service</servlet-name>
-
-    <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
-    <init-param>
-        <param-name>com.sun.jersey.config.property.WadlGeneratorConfig</param-name>
-        <param-value>fr.eurotoll.gps.vas.boot.VasWadlGeneratorConfig</param-value>
-    </init-param>
-    <init-param>
-        <param-name>com.sun.jersey.config.property.packages</param-name>
-        <param-value>
-                    fr.eurotoll.gps.vas.ws.archivage.rest;
-                    fr.eurotoll.gps.vas.ws.infoveh.rest;
-                    fr.eurotoll.gps.vas.ws.getgl.rest;
-                    fr.eurotoll.gps.commons.exception.rest</param-value>
-    </init-param>
-
-    <init-param>
-        <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
-        <param-value>true</param-value>
-    </init-param>
-
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet>
-    <servlet-name>zoneUploadServlet</servlet-name>
-    <servlet-class>skymonitor.airspaceloader.ZoneUploadlServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>zoneUploadServlet</servlet-name>
-    <url-pattern>admin/zoneuploadservlet</url-pattern>
-  </servlet-mapping>
-  -->
-<!--  
-    <servlet-mapping>
-        <servlet-name>Jersey REST Service</servlet-name>
-        <url-pattern>/r/*</url-pattern>
-    </servlet-mapping>
--->
 	<context-param>
 	    <description>Nom du serveur MongoDB.</description>
 	    <param-name>mongoserver</param-name>
@@ -55,7 +13,7 @@
 	</context-param>
 	
 	<context-param>
-	    <description>Nom de la base de données MongoDB.</description>
+	    <description>Nom de la base de donnï¿½es MongoDB.</description>
 	    <param-name>mongodatabase</param-name>
 	    <param-value>db</param-value>
 	</context-param>
