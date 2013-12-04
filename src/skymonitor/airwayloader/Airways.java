@@ -1,14 +1,23 @@
 package skymonitor.airwayloader;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,7 +29,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
-
+import com.mongodb.util.JSON;
 /**
  * Classe responsable du chargement de la base de données des routes.
  * 
@@ -85,26 +94,63 @@ public class Airways {
 	 * HashMap retourne le waypoint à partir de son identifiant.
 	 */
 	private static HashMap<Integer, Element> waypointsIndex;
+	
+	public static String processRequest(HttpServletRequest request) {
+		if ("POST".equals(request.getMethod())) {
+			FileItemFactory factory = new DiskFileItemFactory();
+			ServletFileUpload upload = new ServletFileUpload(factory);
+			upload.setSizeMax(100000000);// 100 Mo
+			
+			try {
+				List<FileItem> files = upload.parseRequest(request);
+				InputStream legsIps = null;
+				InputStream airwaysIps = null;
+				InputStream waypointsIps = null;
+				
+				String mongoServer = request.getServletContext().getInitParameter("mongoserver");
+				String mongoDatabase = request.getServletContext().getInitParameter("mongodatabase");
+				
+				int i = 0; 
+				for (FileItem file : files) {
+					if (i == 0) {
+						legsIps = file.getInputStream();
+						i++;
+					}
+					else if (i == 1) {
+						airwaysIps = file.getInputStream();
+						i++;
+					}
+					else if (i == 2) {
+						waypointsIps = file.getInputStream();
+						i++;
+					}
+				}
+				
+				documentsReader(legsIps, airwaysIps, waypointsIps, mongoServer, mongoDatabase);
+				return "Route charg&eacute;e.";
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			return "Failed to upload files!";
+			
+		}
+		return "Chargement des fichiers airways : (" + request.getServletContext().getInitParameter("mongodatabase") +")";
+	}
 
-	public static void main(String[] args) {
-		String mongoServer = "localhost";
-		String mongoDatabase = "skymonitor";
-		String mongoAirways = "AirWays";
-		
-		String legsFilename = "C:/Users/Compaq/Desktop/AirwayLegs.xml";
-		String airwaysFilename = "C:/Users/Compaq/Desktop/Airways.xml";
-		String waypointsFilename = "C:/Users/Compaq/Desktop/Waypoints.xml";
+	public static void documentsReader(InputStream legsIps, InputStream airwaysIps, InputStream waypointsIps, String mongoServer, String mongoDatabase) {
+		String mongoCollection = "AirWays";
 
 		try {
 			Mongo mongo = new Mongo(mongoServer, 27017);
 			DB db = mongo.getDB(mongoDatabase);
 
-			DBCollection collection = db.getCollection(mongoAirways);
+			DBCollection collection = db.getCollection(mongoCollection);
 
 			// Load input files.
-			legsList = loadAirwayLegs(legsFilename);
-			NodeList airwaysList = loadAirways(airwaysFilename);
-			NodeList waypointsList = loadWaypoints(waypointsFilename);
+			legsList = loadAirwayLegs(legsIps);
+			NodeList airwaysList = loadAirways(airwaysIps);
+			NodeList waypointsList = loadWaypoints(waypointsIps);
 
 			// Build index for legs and waypoints.
 			legsIndex = indexLegs(legsList);
@@ -121,11 +167,27 @@ public class Airways {
 					collection.insert(document);
 					System.out.println(document);
 				}
-			}
-		} catch (UnknownHostException e) {
+			} 
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (MongoException e) {
-			e.printStackTrace();
+		}
+	}
+	
+	
+	public static void main(String[] args) {
+		
+		String legsFilename = "C:/Users/Giulio F/Documents/GitHub/AirwayLegs.xml";
+		String airwaysFilename = "C:/Users/Giulio F/Documents/GitHub/Airways.xml";
+		String waypointsFilename = "C:/Users/Giulio F/Documents/GitHub/Waypoints.xml";
+		
+		String mongoServer = "localhost";
+		String mongoDatabase = "db3";
+		
+		try {
+			InputStream legsIps = new FileInputStream(legsFilename);
+			InputStream airwaysIps = new FileInputStream(airwaysFilename);
+			InputStream waypointsIps = new FileInputStream(waypointsFilename);
+			documentsReader(legsIps, airwaysIps, waypointsIps, mongoServer, mongoDatabase);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -137,10 +199,11 @@ public class Airways {
 		
 		Integer airwayId = Integer.valueOf(airwayElement.getElementsByTagName("ID").item(0).getTextContent());
 		
-		// document.put("ID",			airwayId); // Supprimer, l'idenfiant ne nous sert à rien.
-		document.put("Ident",		airwayElement.getElementsByTagName("Ident").item(0).getTextContent());
+		// document.put("ID",airwayId); // Supprimer, l'idenfiant ne nous sert à rien.
+		document.put("Ident",airwayElement.getElementsByTagName("Ident").item(0).getTextContent());
 
 		ArrayList<BasicDBObject> way = new ArrayList<BasicDBObject>();
+		ArrayList<ArrayList> points = new ArrayList<ArrayList>();
 		int legsStartPosition = legsIndex.get(airwayId);
 		Boolean test = true;
 		
@@ -151,21 +214,81 @@ public class Airways {
 			if (nNode1.getNodeType() == Node.ELEMENT_NODE) {
 
 				Element eElement1 = (Element) nNode1;
-				if ((eElement1.getElementsByTagName("AirwayID").item(0).getTextContent()).equals(airwayId)) {
+				if ((eElement1.getElementsByTagName("AirwayID").item(0).getTextContent()).equals(airwayElement.getElementsByTagName("ID").item(0).getTextContent())) {
 					test = true;
 					
 					BasicDBObject document2 = new BasicDBObject();
-					Integer waypointID = Integer.parseInt(eElement1.getElementsByTagName("Waypoint1ID").item(0).getTextContent());
-
-					BasicDBObject document3 = new BasicDBObject();
-					Element waypointElement = waypointsIndex.get(waypointID);
+					Integer waypoint1ID = Integer.parseInt(eElement1.getElementsByTagName("Waypoint1ID").item(0).getTextContent());
+					Integer waypoint2ID = Integer.parseInt(eElement1.getElementsByTagName("Waypoint2ID").item(0).getTextContent());
 					
-					document3.put("Latitude",waypointElement.getElementsByTagName("Latitude").item(0).getTextContent());
-					document3.put("Longitude",waypointElement.getElementsByTagName("Longtitude").item(0).getTextContent());
-
-					document2.put("Waypoint1ID", document3);
-
+					Element waypointElement3 = waypointsIndex.get(waypoint1ID);
+					Element waypointElement4 = waypointsIndex.get(waypoint2ID);
+	
+	                ArrayList<ArrayList> coordonnees = new ArrayList<ArrayList>();
+	                ArrayList<String> latlong1 = new ArrayList<String>();
+	                ArrayList<String> latlong2 = new ArrayList<String>();
+	                latlong1.add(waypointElement3.getElementsByTagName("Latitude").item(0).getTextContent());
+	                latlong1.add(waypointElement3.getElementsByTagName("Longtitude").item(0).getTextContent());
+	                latlong2.add(waypointElement4.getElementsByTagName("Latitude").item(0).getTextContent());
+	                latlong2.add(waypointElement4.getElementsByTagName("Longtitude").item(0).getTextContent());
+	                
+	                coordonnees.add(latlong1);
+	                coordonnees.add(latlong2);
+	                
+	                ArrayList<ArrayList> coordonneesaux = new ArrayList<ArrayList>();
+	                coordonneesaux.add(latlong2);
+	                coordonneesaux.add(latlong1);
+	                BasicDBObject documentaux = new BasicDBObject();
+					BasicDBObject lineaux = new BasicDBObject();
+	                documentaux.put("From",waypointElement4.getElementsByTagName("Ident").item(0).getTextContent());
+	                documentaux.put("To",waypointElement3.getElementsByTagName("Ident").item(0).getTextContent());
+	                documentaux.put("direction",1);
+	                lineaux.put("type","LineString");
+                    lineaux.put("coordinates",coordonneesaux);
+                    documentaux.put("Line", lineaux);
+	                
+	                Boolean test1 = true;   
+	                
+	                int j = 0;
+	                while (j < way.size() && test1) {
+	                	if (way.get(j).equals(documentaux)) {
+	                		way.remove(way.get(j));
+	                		test1 = false;
+	                	}
+	                	j++;
+	                }
+					
+		            BasicDBObject line = new BasicDBObject();
+					if (test1 ==true) {
+					document2.put("From", waypointElement3.getElementsByTagName("Ident").item(0).getTextContent());
+                    document2.put("To", waypointElement4.getElementsByTagName("Ident").item(0).getTextContent());
+                    document2.put("direction", 1);
+                    line.put("type","LineString");
+                    line.put("coordinates",coordonnees);
+                    document2.put("Line", line);
+                    
+                    }
+					
+					else {
+						document2.put("From", waypointElement3.getElementsByTagName("Ident").item(0).getTextContent());
+	                    document2.put("To", waypointElement4.getElementsByTagName("Ident").item(0).getTextContent());
+	                    document2.put("direction", 0);
+	                    line.put("type","LineString");
+	                    line.put("coordinates",coordonnees);
+	                    document2.put("Line", line);
+	                    };
+	                    
+                       
+					if (!(points.contains(latlong1)))  {
+					points.add(latlong1);
+					}
+					else if (!(points.contains(latlong2)))  {
+						points.add(latlong2);
+						
+					};
+					
 					way.add(document2);
+					
 				} else {
 					test = false;
 
@@ -173,8 +296,11 @@ public class Airways {
 			}
 			legsStartPosition++;
 		}
-
+		BasicDBObject route = new BasicDBObject();
+		route.put("type","LineString");
+		route.put("coordinates", points);
 		document.put("Legs", way);
+		document.put("Route", route);
 		return document;
 	}
 	
@@ -237,8 +363,8 @@ public class Airways {
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	private static NodeList loadAirwayLegs(String legsFilename) throws ParserConfigurationException, SAXException, IOException {
-		return loadNodes(legsFilename, "AirwayLegs");
+	private static NodeList loadAirwayLegs(InputStream ips) throws ParserConfigurationException, SAXException, IOException {
+		return loadNodes(ips, "AirwayLegs");
 	}
 
 	/**
@@ -250,8 +376,8 @@ public class Airways {
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	private static NodeList loadWaypoints(String waypointsFilename) throws ParserConfigurationException, SAXException, IOException {
-		return loadNodes(waypointsFilename, "Waypoints");
+	private static NodeList loadWaypoints(InputStream ips) throws ParserConfigurationException, SAXException, IOException {
+		return loadNodes(ips, "Waypoints");
 	}
 
 	/**
@@ -263,8 +389,8 @@ public class Airways {
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	private static NodeList loadAirways(String airwaysFilename) throws ParserConfigurationException, SAXException, IOException {
-		return loadNodes(airwaysFilename, "Airways");
+	private static NodeList loadAirways(InputStream ips) throws ParserConfigurationException, SAXException, IOException {
+		return loadNodes(ips, "Airways");
 	}
 
 	/**
@@ -277,10 +403,9 @@ public class Airways {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 */
-	private static NodeList loadNodes(String filename, String tagName) throws SAXException, IOException, ParserConfigurationException {
+	private static NodeList loadNodes(InputStream fileIps, String tagName) throws SAXException, IOException, ParserConfigurationException {
 		// Factorisation du code pour les 3 méthodes ci-dessus.
-		File f = new File(filename);
-		Document d = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(f);
+		Document d = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(fileIps);
 		d.getDocumentElement().normalize();
 		return d.getElementsByTagName(tagName);
 	}
