@@ -4,3 +4,7 @@ trash/
 .project
 .settings/
 target/
+classes/
+*.class
+*.war
+*.xml
