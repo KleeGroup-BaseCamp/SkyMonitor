@@ -1,11 +1,15 @@
 package skymonitor.datacollector;
 
 import java.io.InputStream;
+import java.util.Map;
+
 import com.mongodb.*;
 
 public class Principal {
 	
 	static InputStream flux = null;
+	
+	static BasicDBObject dots = new BasicDBObject();
 	
 	static void main() {
 		
