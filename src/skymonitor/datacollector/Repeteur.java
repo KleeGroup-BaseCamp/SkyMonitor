@@ -4,9 +4,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Repeteur {
-	public static void main(String...args) {
+	public static void main() {
 		TimerTask task = new TimerTask() {
+			@Override
 			public void run() {
+				ConnectJS.connectionJS();
 				Executeur exec = new Executeur();
 				exec.main();
 			}	

@@ -1,6 +1,5 @@
 package skymonitor.datacollector;
 
-import java.io.InputStream;
 import java.net.*;
 
 public class ConnectJS {

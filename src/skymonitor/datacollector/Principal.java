@@ -1,8 +1,6 @@
 package skymonitor.datacollector;
 
 import java.io.InputStream;
-import java.util.Map;
-
 import com.mongodb.*;
 
 public class Principal {
@@ -11,14 +9,12 @@ public class Principal {
 	
 	static BasicDBObject dots = new BasicDBObject();
 	
-	static void main() {
-		
-		String server = "localhost";
-		String database = "db";
-		Database databaseInstance = new Database(server, database);
-		
-		ConnectJS.connectionJS(); //Connection JS
-		
-		Repeteur.main();//Repeter le code contenu dans Executeur toutes les x secondes
+	static String server = "localhost";
+	static String database = "db";
+	static String collection = "points";
+	static Database databaseInstance = new Database(server, database, collection);
+	
+	public static void main(String[] args) {
+		Repeteur.main(); //Répète Executeur toutes les x secondes
 	}
 }
