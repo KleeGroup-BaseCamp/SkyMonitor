@@ -17,5 +17,11 @@
 	    <param-name>mongodatabase</param-name>
 	    <param-value>db</param-value>
 	</context-param>
+	
+	<listener>
+        <description>application startup and shutdown events</description>
+        <display-name>ApplicationListener</display-name>
+        <listener-class>skymonitor.datacollector.ApplicationListener</listener-class>
+	</listener>
 
 </web-app>  
