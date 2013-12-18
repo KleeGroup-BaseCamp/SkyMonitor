@@ -1,14 +1,20 @@
 package skymonitor.datacollector;
 
+import java.io.InputStream;
+import com.mongodb.*;
+
 public class Principal {
 	
-	void main() {
-		//Connection BD MDB à insérer ici
-		ConnectionsDeconnectionsJS.connectionJS(); //Connection JS
-		
-		Repeteur.main();//Repeter le code contenu dans Executeur toutes les x secondes
-		
-		ConnectionsDeconnectionsJS.deconnectionJS(); //Deconnection JS
-		//Deconnection BD MDB à insérer ici
+	static InputStream flux = null;
+	
+	static BasicDBObject dots = new BasicDBObject();
+	
+	static String server = "localhost";
+	static String database = "db";
+	static String collection = "points";
+	static Database databaseInstance = new Database(server, database, collection);
+	
+	public static void main() {
+		Repeteur.main(); //RÈpËte Executeur toutes les x secondes
 	}
 }
