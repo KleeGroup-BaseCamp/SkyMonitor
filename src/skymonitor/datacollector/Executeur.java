@@ -23,7 +23,7 @@ public class Executeur {
 		date.setTimeInMillis(time*1000);
 		
 		String result = dateElementToString(date.get(date.YEAR))
-				+ dateElementToString(date.get(date.MONTH))
+				+ dateElementToString(date.get(date.MONTH)+1) //January == 0
 				+ dateElementToString(date.get(date.DATE))
 				+ dateElementToString(date.get(date.HOUR_OF_DAY))
 				+ dateElementToString(date.get(date.MINUTE))
@@ -48,6 +48,13 @@ public class Executeur {
 				Principal.dots.put("Hex", (String)dot[0]);
 				Principal.dots.put("Lat", (double)dot[1]);
 				Principal.dots.put("Lon", (double)dot[2]);
+				
+				BasicDBObject point = new BasicDBObject();
+				double[] coords = {(double)dot[2],(double)dot[1]};
+				point.put("type", "Point");
+				point.put("coordinates", coords);
+				Principal.dots.put("Point",point);
+				
 				Principal.dots.put("Hdg", (int)dot[3]);
 				Principal.dots.put("Alt", (int)dot[4]*100); // En pieds
 				Principal.dots.put("Spd", (int)dot[5]);
@@ -59,7 +66,7 @@ public class Executeur {
 				Principal.dots.put("From", (String)dot[11]);
 				Principal.dots.put("To", (String)dot[12]);
 				Principal.dots.put("Flight", (String)dot[13]);
-				Principal.dots.put("Vspeed", (int)dot[15]);
+				Principal.dots.put("Vspeed", (int)dot[15]); // En pieds par minute
 				Principal.dots.put("Callsign", (String)dot[16]);
 				Principal.dots.put("DotID", dateToString((int)dot[10]) + (String)dot[16]);
 				Principal.dots.put("Eta", (int)dot[17]);
