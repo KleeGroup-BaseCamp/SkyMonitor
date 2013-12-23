@@ -21,10 +21,11 @@ public class LectureFichier {
 	public static String pays;
 	
 	public static void main(String[] args) {
-		String fichier = "uk_air_2002.txt";
+		String fichier = "130609AIRSPACEFrance1306c.txt";
+		pays = "Fr";
 		try {
 			InputStream ips = new FileInputStream(fichier);
-			loadZones(ips, "localhost", "db", "pays");
+			loadZones(ips, "localhost", "db");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -51,7 +52,7 @@ public class LectureFichier {
 					else {
 						String server = request.getServletContext().getInitParameter("mongoserver");
 						String database = request.getServletContext().getInitParameter("mongodatabase");
-						loadZones(file.getInputStream(), server, database, pays);
+						loadZones(file.getInputStream(), server, database);
 						return "Zone charg&eacute;e pour le pays : " + pays;
 					}
 				}
@@ -68,11 +69,11 @@ public class LectureFichier {
 		return "Chargement d'un fichier : (" + request.getServletContext().getInitParameter("mongodatabase") +")";
 	}
 
-	public static void loadZones(InputStream ips, String server, String database, String pays) {
+	public static void loadZones(InputStream ips, String server, String database) {
 		try {
 			Mongo mongo = new Mongo(server, 27017);
 			DB db = mongo.getDB(database);
-			DBCollection zones = db.getCollection("zone");
+			DBCollection zones = db.getCollection("zones");
 
 			ACCase AC = new ACCase();
 			AHCase AH = new AHCase();
@@ -115,7 +116,7 @@ public class LectureFichier {
 
 			occ.removeField("Vpoint");
 			occ.removeField("Vdir");
-			occ.put("Pays", LectureFichier.pays);
+			occ.put("Pays", pays);
 			zones.insert(occ);
 
 			BasicDBObject Starter = new BasicDBObject();
