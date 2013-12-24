@@ -12,8 +12,12 @@ public class ACCase extends Case {
 	public void execute(String line, BasicDBObject occ, DBCollection coll) {
 		if (occ.containsField("FirstDP")) {
 			double[] firstDP = (double[]) occ.get("FirstDP");
-			DPCase.closePolygon(firstDP, occ);
+			double[] currentDP = (double[]) occ.get("CurrentDP");
+			if (!(firstDP[0] == currentDP[0] && firstDP[1] == currentDP[1])) {
+				DPCase.closePolygon(firstDP, occ);
+			}
 			occ.removeField("FirstDP");
+			occ.removeField("CurrentDP");
 		}
 		
 		occ.put("Pays", LectureFichier.pays);

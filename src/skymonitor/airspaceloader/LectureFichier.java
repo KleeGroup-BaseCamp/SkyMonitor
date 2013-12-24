@@ -22,7 +22,7 @@ public class LectureFichier {
 	
 	public static void main(String[] args) {
 		String fichier = "130609AIRSPACEFrance1306c.txt";
-		pays = "Fr";
+		pays = "Uk";
 		try {
 			InputStream ips = new FileInputStream(fichier);
 			loadZones(ips, "localhost", "db");
@@ -100,7 +100,6 @@ public class LectureFichier {
 
 			while ((line = br.readLine()) != null) {
 				lineNbr++;
-				System.out.println(line);
 				String Line = line.toUpperCase();
 				for (Case poss : Possibilites) {
 					if (poss.matches(Line)) {
@@ -113,6 +112,16 @@ public class LectureFichier {
 				}
 			}
 			br.close();
+			
+			if (occ.containsField("FirstDP")) {
+				double[] firstDP = (double[]) occ.get("FirstDP");
+				double[] currentDP = (double[]) occ.get("CurrentDP");
+				if (!(firstDP[0] == currentDP[0] && firstDP[1] == currentDP[1])) {
+					DPCase.closePolygon(firstDP, occ);
+				}
+				occ.removeField("FirstDP");
+				occ.removeField("CurrentDP");
+			}
 
 			occ.removeField("Vpoint");
 			occ.removeField("Vdir");

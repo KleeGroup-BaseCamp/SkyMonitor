@@ -27,6 +27,7 @@ public class DPCase extends Case {
 		}
 		DBObject DPo = (DBObject)JSON.parse(DPs);
 		occ.put("Polygon", DPo);
+		occ.put("CurrentDP", point);
 	}
 	
 	public static void closePolygon(double[] point, BasicDBObject occ) {
