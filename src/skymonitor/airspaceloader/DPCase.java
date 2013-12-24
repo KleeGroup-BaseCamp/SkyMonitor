@@ -23,8 +23,17 @@ public class DPCase extends Case {
 		else {
 			DPs = "{type: 'Polygon', coordinates: [[ ["
 		+ Double.toString(point[0])+ ","+ Double.toString(point[1]) +"] ]]}";
+			occ.put("FirstDP", point);
 		}
 		DBObject DPo = (DBObject)JSON.parse(DPs);
 		occ.put("Polygon", DPo);
+	}
+	
+	public static void closePolygon(double[] point, BasicDBObject occ) {
+		Object DPo = occ.get("Polygon");
+		String DPs = DPo.toString().replaceAll(" ","");
+		DPs = DPs.substring(0,DPs.length()-3) + ",[" + Double.toString(point[0]) + "," + Double.toString(point[1]) + "]]]}";
+		DBObject newDPo = (DBObject)JSON.parse(DPs);
+		occ.put("Polygon", newDPo);
 	}
 }

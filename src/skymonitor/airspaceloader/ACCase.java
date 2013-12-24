@@ -10,11 +10,18 @@ public class ACCase extends Case {
 	
 	@Override
 	public void execute(String line, BasicDBObject occ, DBCollection coll) {
+		if (occ.containsField("FirstDP")) {
+			double[] firstDP = (double[]) occ.get("FirstDP");
+			DPCase.closePolygon(firstDP, occ);
+			occ.removeField("FirstDP");
+		}
+		
+		occ.put("Pays", LectureFichier.pays);
+		
 		Object Vpoint = occ.get("Vpoint");
 		Object Vdir = occ.get("Vdir");
 		occ.removeField("Vpoint");
 		occ.removeField("Vdir");
-		occ.put("Pays", LectureFichier.pays);
 		coll.insert(occ);
 		occ.clear();
 		occ.put("Vpoint", Vpoint);
