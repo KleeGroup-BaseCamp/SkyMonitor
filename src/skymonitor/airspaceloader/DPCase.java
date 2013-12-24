@@ -30,11 +30,19 @@ public class DPCase extends Case {
 		occ.put("CurrentDP", point);
 	}
 	
-	public static void closePolygon(double[] point, BasicDBObject occ) {
-		Object DPo = occ.get("Polygon");
-		String DPs = DPo.toString().replaceAll(" ","");
-		DPs = DPs.substring(0,DPs.length()-3) + ",[" + Double.toString(point[0]) + "," + Double.toString(point[1]) + "]]]}";
-		DBObject newDPo = (DBObject)JSON.parse(DPs);
-		occ.put("Polygon", newDPo);
+	public static void closePolygon(BasicDBObject occ) {
+		if (occ.containsField("FirstDP")) {
+			double[] firstDP = (double[]) occ.get("FirstDP");
+			double[] currentDP = (double[]) occ.get("CurrentDP");
+			if (!(firstDP[0] == currentDP[0] && firstDP[1] == currentDP[1])) {
+				Object DPo = occ.get("Polygon");
+				String DPs = DPo.toString().replaceAll(" ","");
+				DPs = DPs.substring(0,DPs.length()-3) + ",[" + Double.toString(firstDP[0]) + "," + Double.toString(firstDP[1]) + "]]]}";
+				DBObject newDPo = (DBObject)JSON.parse(DPs);
+				occ.put("Polygon", newDPo);
+			}
+			occ.removeField("FirstDP");
+			occ.removeField("CurrentDP");
+		}
 	}
 }

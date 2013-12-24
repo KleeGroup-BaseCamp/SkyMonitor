@@ -20,6 +20,15 @@ public class LectureFichier {
 	
 	public static String pays;
 	
+	public static void completeAndInsert(BasicDBObject occ, DBCollection coll) {
+		DPCase.closePolygon(occ);
+
+		occ.removeField("Vpoint");
+		occ.removeField("Vdir");
+		occ.put("Pays", pays);
+		coll.insert(occ);
+	}
+	
 	public static void main(String[] args) {
 		String fichier = "130609AIRSPACEFrance1306c.txt";
 		pays = "Uk";
@@ -113,20 +122,7 @@ public class LectureFichier {
 			}
 			br.close();
 			
-			if (occ.containsField("FirstDP")) {
-				double[] firstDP = (double[]) occ.get("FirstDP");
-				double[] currentDP = (double[]) occ.get("CurrentDP");
-				if (!(firstDP[0] == currentDP[0] && firstDP[1] == currentDP[1])) {
-					DPCase.closePolygon(firstDP, occ);
-				}
-				occ.removeField("FirstDP");
-				occ.removeField("CurrentDP");
-			}
-
-			occ.removeField("Vpoint");
-			occ.removeField("Vdir");
-			occ.put("Pays", pays);
-			zones.insert(occ);
+			completeAndInsert(occ,zones);
 
 			BasicDBObject Starter = new BasicDBObject();
 			Starter.put("Starter", 0);

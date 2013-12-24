@@ -10,26 +10,15 @@ public class ACCase extends Case {
 	
 	@Override
 	public void execute(String line, BasicDBObject occ, DBCollection coll) {
-		if (occ.containsField("FirstDP")) {
-			double[] firstDP = (double[]) occ.get("FirstDP");
-			double[] currentDP = (double[]) occ.get("CurrentDP");
-			if (!(firstDP[0] == currentDP[0] && firstDP[1] == currentDP[1])) {
-				DPCase.closePolygon(firstDP, occ);
-			}
-			occ.removeField("FirstDP");
-			occ.removeField("CurrentDP");
-		}
-		
-		occ.put("Pays", LectureFichier.pays);
-		
 		Object Vpoint = occ.get("Vpoint");
 		Object Vdir = occ.get("Vdir");
-		occ.removeField("Vpoint");
-		occ.removeField("Vdir");
-		coll.insert(occ);
+		
+		LectureFichier.completeAndInsert(occ, coll);
+		
 		occ.clear();
 		occ.put("Vpoint", Vpoint);
 		occ.put("Vdir", Vdir);
+		
 		String chaine = line.substring(3).replaceAll("\\u002A.*", "");
 		occ.put("Type", chaine);
 	}
