@@ -7,7 +7,6 @@ import com.mongodb.*;
 import java.util.List;
 import java.util.LinkedList;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -21,7 +20,7 @@ public class LectureFichier {
 	public static String pays;
 	
 	public static void completeAndInsert(BasicDBObject occ, DBCollection coll) {
-		DPCase.closePolygon(occ);
+		Case.closePolygon(occ);
 
 		occ.removeField("Vpoint");
 		occ.removeField("Vdir");

@@ -2,6 +2,8 @@ package skymonitor.airspaceloader;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.util.JSON;
 
 public abstract class Case {
 	
@@ -14,6 +16,7 @@ public abstract class Case {
 	public boolean matches(String line){
 		return line.startsWith(expr);
 	}
+	
 	public abstract void execute(String line, BasicDBObject occ, DBCollection coll);	
 	
 	public static double[] convPt (String OAPtline){
@@ -44,5 +47,36 @@ public abstract class Case {
 		
 		result[0] *= E; result[1] *= N;
 		return result;
+	}
+	
+	public static void closePolygon(BasicDBObject occ) {
+		if (occ.containsField("FirstDP")) {
+			double[] firstDP = (double[]) occ.get("FirstDP");
+			addPointToPolygon(occ, firstDP);
+			occ.removeField("FirstDP");
+			occ.removeField("CurrentDP");
+		}
+	}
+	
+	public static void addPointToPolygon (BasicDBObject occ, double[] point) {
+		double[] currentDP = (double[]) occ.get("CurrentDP");
+		if (!(point[0] == currentDP[0] && point[1] == currentDP[1])) {
+			Object DPo = occ.get("Polygon");
+			String DPs = DPo.toString().replaceAll(" ","");
+			DPs = DPs.substring(0,DPs.length()-3) + ",[" + Double.toString(point[0]) + "," + Double.toString(point[1]) + "]]]}";
+			DBObject NewDPo = (DBObject)JSON.parse(DPs);
+			occ.put("Polygon", NewDPo);
+			occ.put("CurrentDP", point);
+		}
+	}
+	
+	public static void createPolygonWithPoint (BasicDBObject occ, double[] point) {
+		String DPs;
+		DPs = "{type: 'Polygon', coordinates: [[ ["
+	+ Double.toString(point[0])+ ","+ Double.toString(point[1]) +"] ]]}";
+		occ.put("FirstDP", point);
+		DBObject DPo = (DBObject)JSON.parse(DPs);
+		occ.put("Polygon", DPo);
+		occ.put("CurrentDP", point);
 	}
 }
