@@ -12,6 +12,8 @@ public class DBCase extends Case {
 		super ("DB");
 	}
 	
+	public static double interpolStep = 10; // degrees
+	
 	@Override
 	public void execute(String line, BasicDBObject occ, DBCollection coll) {
 		String chaine = line.substring(3).replaceAll(" |\\u002A.*","");
@@ -24,26 +26,15 @@ public class DBCase extends Case {
 		insertRealArc(Vpoint, pointStart, pointStop, occ, coll);
 	}
 	
-	public static double calculateStartAngle (Object Vpoint, double radius, double[] pointStart) {
-		double anStart;
-		if (pointStart[0]-Array.getDouble(Vpoint, 0) >= 0) {
-			anStart = Math.toDegrees(Math.acos((pointStart[1]-Array.getDouble(Vpoint, 1))/radius));
+	public static double calculateAngle (Object Vpoint, double radius, double[] point) {
+		double angle;
+		if (point[0]-Array.getDouble(Vpoint, 0) >= 0) {
+			angle = Math.toDegrees(Math.acos((point[1]-Array.getDouble(Vpoint, 1))/radius));
 		}
 		else {
-			anStart = 360-Math.toDegrees(Math.acos((pointStart[1]-Array.getDouble(Vpoint, 1))/radius));
+			angle = 360-Math.toDegrees(Math.acos((point[1]-Array.getDouble(Vpoint, 1))/radius));
 		}
-		return anStart;
-	}
-	
-	public static double calculateStopAngle (Object Vpoint, double radius, double[] pointStop) {
-		double anStop;
-		if (pointStop[0]-Array.getDouble(Vpoint, 0) >= 0) {
-			anStop = Math.toDegrees(Math.acos((pointStop[1]-Array.getDouble(Vpoint, 1))/radius));
-		}
-		else {
-			anStop = 360-Math.toDegrees(Math.acos((pointStop[1]-Array.getDouble(Vpoint, 1))/radius));
-		}
-		return anStop;
+		return angle;
 	}
 	
 	public static double calculateRadius (Object Vpoint, double[] pointStart) { // degrees on earth surface
@@ -52,16 +43,29 @@ public class DBCase extends Case {
 		return radius;
 	}
 	
+	public static double[] createPointOnCircle(Object Vpoint, double radius, double angle) {
+		double[] point = new double[2];
+		point[0] = Array.getDouble(Vpoint,0) + radius*Math.sin(Math.toRadians(angle));
+		point[1] = Array.getDouble(Vpoint,1) + radius*Math.cos(Math.toRadians(angle));
+		return point;
+	}
+	
 	public static void insertAsPolygon (Object Vpoint, double[] pointStart, double[] pointStop, BasicDBObject occ, DBCollection coll) {
 		if (occ.containsField("Polygon")) {
 			addPointToPolygon(occ, pointStart);
 			double radius = calculateRadius(Vpoint, pointStart);
-			double anStart = calculateStartAngle(Vpoint, radius, pointStart);
-			double anStop = calculateStopAngle(Vpoint, radius, pointStop);
+			double anStart = calculateAngle(Vpoint, radius, pointStart);
+			double anStop = calculateAngle(Vpoint, radius, pointStop);
 			try {
 				if (occ.getInt("Vdir") == -1) {
-					while (anStart > anStop) { // prendre en compte s'ils sont à cheval du 0
-						// créer le nouveau point en fct d'un pas d'angle à soustraire à anStart
+					if (anStop > anStart) {
+						anStop =- 360;
+					}
+					anStart =- interpolStep;
+					while (anStart > anStop) {
+						double[] newPoint = createPointOnCircle(Vpoint, radius, anStart);
+						addPointToPolygon(occ, newPoint);
+						anStart =- interpolStep;
 					}
 					addPointToPolygon(occ, pointStop);
 				}
@@ -70,8 +74,14 @@ public class DBCase extends Case {
 				}
 			}
 			catch (NullPointerException e) {
+				if (anStop < anStart) {
+					anStop =+ 360;
+				}
+				anStart =+ interpolStep;
 				while (anStart < anStop) {
-					
+					double[] newPoint = createPointOnCircle(Vpoint, radius, anStart);
+					addPointToPolygon(occ, newPoint);
+					anStart =+ interpolStep;
 				}
 				addPointToPolygon(occ, pointStop);
 			}
@@ -102,8 +112,8 @@ public class DBCase extends Case {
 		double radius = calculateRadius(Vpoint, pointStart); // degrees on earth sphere
 		arc.put("radius", Math.toRadians(radius)*6371/1.852); // nautical miles
 		
-		double anStart = calculateStartAngle(Vpoint, radius, pointStart);
-		double anStop = calculateStopAngle(Vpoint, radius, pointStop);
+		double anStart = calculateAngle(Vpoint, radius, pointStart);
+		double anStop = calculateAngle(Vpoint, radius, pointStop);
 		arc.put("start", anStart);
 		arc.put("stop", anStop);
 		
