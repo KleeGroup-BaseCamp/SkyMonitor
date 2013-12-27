@@ -23,6 +23,7 @@ public class DBCase extends Case {
 		
 		Object Vpoint = occ.get("Vpoint");
 		
+		insertAsPolygon(Vpoint, pointStart, pointStop, occ, coll);
 		insertRealArc(Vpoint, pointStart, pointStop, occ, coll);
 	}
 	
@@ -59,13 +60,13 @@ public class DBCase extends Case {
 			try {
 				if (occ.getInt("Vdir") == -1) {
 					if (anStop > anStart) {
-						anStop =- 360;
+						anStop -= 360;
 					}
-					anStart =- interpolStep;
+					anStart -= interpolStep;
 					while (anStart > anStop) {
 						double[] newPoint = createPointOnCircle(Vpoint, radius, anStart);
 						addPointToPolygon(occ, newPoint);
-						anStart =- interpolStep;
+						anStart -= interpolStep;
 					}
 					addPointToPolygon(occ, pointStop);
 				}
@@ -75,13 +76,13 @@ public class DBCase extends Case {
 			}
 			catch (NullPointerException e) {
 				if (anStop < anStart) {
-					anStop =+ 360;
+					anStop += 360;
 				}
-				anStart =+ interpolStep;
+				anStart += interpolStep;
 				while (anStart < anStop) {
 					double[] newPoint = createPointOnCircle(Vpoint, radius, anStart);
 					addPointToPolygon(occ, newPoint);
-					anStart =+ interpolStep;
+					anStart += interpolStep;
 				}
 				addPointToPolygon(occ, pointStop);
 			}
