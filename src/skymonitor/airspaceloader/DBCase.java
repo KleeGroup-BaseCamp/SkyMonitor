@@ -38,16 +38,17 @@ public class DBCase extends Case {
 		return angle;
 	}
 	
-	public static double calculateRadius (Object Vpoint, double[] pointStart) { // degrees on earth surface
-		double radius = Math.sqrt(Math.pow((Array.getDouble(Vpoint,0) - pointStart[0])*Math.cos(Math.toRadians(Array.getDouble(Vpoint,1))),2)
-				+ Math.pow(Array.getDouble(Vpoint,1) - pointStart[1],2));
+	public static double calculateRadius (Object Vpoint, double[] pointStart) { // distanceRadius/earthRadius
+		double radius = Math.sqrt(Math.pow((Array.getDouble(Vpoint,0) - pointStart[0])
+							*Math.cos(Math.toRadians(pointStart[1])),2)
+						+ Math.pow(Array.getDouble(Vpoint,1) - pointStart[1],2));
 		return radius;
 	}
 	
 	public static double[] createPointOnCircle(Object Vpoint, double radius, double angle) {
 		double[] point = new double[2];
-		point[0] = Array.getDouble(Vpoint,0) + radius*Math.sin(Math.toRadians(angle));
 		point[1] = Array.getDouble(Vpoint,1) + radius*Math.cos(Math.toRadians(angle));
+		point[0] = Array.getDouble(Vpoint,0) + radius*Math.sin(Math.toRadians(angle))/Math.cos(Math.toRadians(point[1]));
 		return point;
 	}
 	
@@ -110,8 +111,8 @@ public class DBCase extends Case {
 		BasicDBObject arc = new BasicDBObject();
 		arc.put("center", centre);
 		
-		double radius = calculateRadius(Vpoint, pointStart); // degrees on earth sphere
-		arc.put("radius", Math.toRadians(radius)*6371/1.852); // nautical miles
+		double radius = calculateRadius(Vpoint, pointStart); // distanceRadius/earthRadius
+		arc.put("radius", radius*6371/1.852); // nautical miles
 		
 		double anStart = calculateAngle(Vpoint, radius, pointStart);
 		double anStop = calculateAngle(Vpoint, radius, pointStop);
