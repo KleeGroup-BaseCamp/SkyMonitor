@@ -1,5 +1,7 @@
 package skymonitor.airspaceloader;
 
+import java.lang.reflect.Array;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -18,6 +20,8 @@ public abstract class Case {
 	}
 	
 	public abstract void execute(String line, BasicDBObject occ, DBCollection coll);	
+	
+	public static double interpolStep = 10; // degrees
 	
 	public static double[] convPt (String OAPtline){
 		double[] result = new double[2];
@@ -78,5 +82,12 @@ public abstract class Case {
 		DBObject DPo = (DBObject)JSON.parse(DPs);
 		occ.put("Polygon", DPo);
 		occ.put("CurrentDP", point);
+	}
+	
+	public static double[] createPointOnCircle(Object Vpoint, double radius, double angle) {
+		double[] point = new double[2];
+		point[1] = Array.getDouble(Vpoint,1) + radius*Math.cos(Math.toRadians(angle));
+		point[0] = Array.getDouble(Vpoint,0) + radius*Math.sin(Math.toRadians(angle))/Math.cos(Math.toRadians(point[1]));
+		return point;
 	}
 }

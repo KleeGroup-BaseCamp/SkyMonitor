@@ -12,8 +12,6 @@ public class DBCase extends Case {
 		super ("DB");
 	}
 	
-	public static double interpolStep = 10; // degrees
-	
 	@Override
 	public void execute(String line, BasicDBObject occ, DBCollection coll) {
 		String chaine = line.substring(3).replaceAll(" |\\u002A.*","");
@@ -45,13 +43,6 @@ public class DBCase extends Case {
 		return radius;
 	}
 	
-	public static double[] createPointOnCircle(Object Vpoint, double radius, double angle) {
-		double[] point = new double[2];
-		point[1] = Array.getDouble(Vpoint,1) + radius*Math.cos(Math.toRadians(angle));
-		point[0] = Array.getDouble(Vpoint,0) + radius*Math.sin(Math.toRadians(angle))/Math.cos(Math.toRadians(point[1]));
-		return point;
-	}
-	
 	public static void insertAsPolygon (Object Vpoint, double[] pointStart, double[] pointStop, BasicDBObject occ, DBCollection coll) {
 		if (occ.containsField("Polygon")) {
 			addPointToPolygon(occ, pointStart);
@@ -64,7 +55,7 @@ public class DBCase extends Case {
 						anStop -= 360;
 					}
 					anStart -= interpolStep;
-					while (anStart > anStop) {
+					while (anStart > anStop + interpolStep/10) { //createPointOnPolygon and calculateAngle are not perfectly reciprocal
 						double[] newPoint = createPointOnCircle(Vpoint, radius, anStart);
 						addPointToPolygon(occ, newPoint);
 						anStart -= interpolStep;
@@ -80,7 +71,7 @@ public class DBCase extends Case {
 					anStop += 360;
 				}
 				anStart += interpolStep;
-				while (anStart < anStop) {
+				while (anStart < anStop-interpolStep/10) {
 					double[] newPoint = createPointOnCircle(Vpoint, radius, anStart);
 					addPointToPolygon(occ, newPoint);
 					anStart += interpolStep;
