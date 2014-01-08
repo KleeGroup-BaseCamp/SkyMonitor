@@ -27,7 +27,7 @@ public class DACase extends Case {
 	public static void insertAsPolygon (Object Vpoint, double radius, double anStart, double anStop, BasicDBObject occ, DBCollection coll) {
 		double[] pointStart = createPointOnCircle(Vpoint, radius, anStart);
 		double[] pointStop = createPointOnCircle(Vpoint, radius, anStop);
-		if (occ.containsField("Polygon")) {
+		if (occ.containsField("Geometry")) {
 			addPointToPolygon(occ, pointStart);
 			try {
 				if (occ.getInt("Vdir") == -1) {

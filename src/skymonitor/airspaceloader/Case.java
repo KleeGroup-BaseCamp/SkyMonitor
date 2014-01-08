@@ -65,11 +65,11 @@ public abstract class Case {
 	public static void addPointToPolygon (BasicDBObject occ, double[] point) {
 		double[] currentDP = (double[]) occ.get("CurrentDP");
 		if (!(point[0] == currentDP[0] && point[1] == currentDP[1])) {
-			Object DPo = occ.get("Polygon");
+			Object DPo = occ.get("Geometry");
 			String DPs = DPo.toString().replaceAll(" ","");
 			DPs = DPs.substring(0,DPs.length()-3) + ",[" + Double.toString(point[0]) + "," + Double.toString(point[1]) + "]]]}";
 			DBObject NewDPo = (DBObject)JSON.parse(DPs);
-			occ.put("Polygon", NewDPo);
+			occ.put("Geometry", NewDPo);
 			occ.put("CurrentDP", point);
 		}
 	}
@@ -80,7 +80,7 @@ public abstract class Case {
 	+ Double.toString(point[0])+ ","+ Double.toString(point[1]) +"] ]]}";
 		occ.put("FirstDP", point);
 		DBObject DPo = (DBObject)JSON.parse(DPs);
-		occ.put("Polygon", DPo);
+		occ.put("Geometry", DPo);
 		occ.put("CurrentDP", point);
 	}
 	

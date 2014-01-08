@@ -12,7 +12,7 @@ public class DPCase extends Case {
 	public void execute(String line, BasicDBObject occ, DBCollection coll) {
 		String chaine = line.substring(3).replaceAll(" |\\u002A.*","");
 		double[] point = convPt(chaine);
-		if (occ.containsField("Polygon")) {
+		if (occ.containsField("Geometry")) {
 			addPointToPolygon(occ, point);
 		}
 		else {

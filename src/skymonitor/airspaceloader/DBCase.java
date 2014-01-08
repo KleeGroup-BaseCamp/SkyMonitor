@@ -44,7 +44,7 @@ public class DBCase extends Case {
 	}
 	
 	public static void insertAsPolygon (Object Vpoint, double[] pointStart, double[] pointStop, BasicDBObject occ, DBCollection coll) {
-		if (occ.containsField("Polygon")) {
+		if (occ.containsField("Geometry")) {
 			addPointToPolygon(occ, pointStart);
 			double radius = calculateRadius(Vpoint, pointStart);
 			double anStart = calculateAngle(Vpoint, radius, pointStart);
