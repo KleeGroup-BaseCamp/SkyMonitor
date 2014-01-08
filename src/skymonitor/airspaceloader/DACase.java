@@ -14,7 +14,7 @@ public class DACase extends Case {
 	public void execute(String line, BasicDBObject occ, DBCollection coll) {
 		String chaine = line.substring(3).replaceAll(" |\\u002A.*","");
 		String[] temp = chaine.split(",");
-		double radius = Double.parseDouble(temp[0]);
+		double radius = Double.parseDouble(temp[0]); // nm
 		double startAngle = Double.parseDouble(temp[1]);
 		double stopAngle = Double.parseDouble(temp[2]);
 		

@@ -86,8 +86,8 @@ public abstract class Case {
 	
 	public static double[] createPointOnCircle(Object Vpoint, double radius, double angle) {
 		double[] point = new double[2];
-		point[1] = Array.getDouble(Vpoint,1) + radius*Math.cos(Math.toRadians(angle));
-		point[0] = Array.getDouble(Vpoint,0) + radius*Math.sin(Math.toRadians(angle))/Math.cos(Math.toRadians(point[1]));
+		point[1] = Array.getDouble(Vpoint,1) + Math.toDegrees(radius)*Math.cos(Math.toRadians(angle));
+		point[0] = Array.getDouble(Vpoint,0) + Math.toDegrees(radius)*Math.sin(Math.toRadians(angle))/Math.cos(Math.toRadians(point[1]));
 		return point;
 	}
 }

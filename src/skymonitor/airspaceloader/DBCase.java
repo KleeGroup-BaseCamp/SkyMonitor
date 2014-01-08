@@ -28,18 +28,18 @@ public class DBCase extends Case {
 	public static double calculateAngle (Object Vpoint, double radius, double[] point) {
 		double angle;
 		if (point[0]-Array.getDouble(Vpoint, 0) >= 0) {
-			angle = Math.toDegrees(Math.acos((point[1]-Array.getDouble(Vpoint, 1))/radius));
+			angle = Math.toDegrees(Math.acos((point[1]-Array.getDouble(Vpoint, 1))/Math.toDegrees(radius)));
 		}
 		else {
-			angle = 360-Math.toDegrees(Math.acos((point[1]-Array.getDouble(Vpoint, 1))/radius));
+			angle = 360-Math.toDegrees(Math.acos((point[1]-Array.getDouble(Vpoint, 1))/Math.toDegrees(radius)));
 		}
 		return angle;
 	}
 	
 	public static double calculateRadius (Object Vpoint, double[] pointStart) { // distanceRadius/earthRadius
-		double radius = Math.sqrt(Math.pow((Array.getDouble(Vpoint,0) - pointStart[0])
+		double radius = Math.toRadians(Math.sqrt(Math.pow((Array.getDouble(Vpoint,0) - pointStart[0])
 							*Math.cos(Math.toRadians(pointStart[1])),2)
-						+ Math.pow(Array.getDouble(Vpoint,1) - pointStart[1],2));
+						+ Math.pow(Array.getDouble(Vpoint,1) - pointStart[1],2)));
 		return radius;
 	}
 	
