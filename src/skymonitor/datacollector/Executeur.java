@@ -56,7 +56,7 @@ public class Executeur {
 				Principal.dots.put("Point",point);
 				
 				Principal.dots.put("Hdg", (int)dot[3]);
-				Principal.dots.put("Alt", (int)dot[4]*100); // En pieds
+				Principal.dots.put("Alt", (int)dot[4]); // En pieds
 				Principal.dots.put("Spd", (int)dot[5]);
 				Principal.dots.put("Sqk", (String)dot[6]);
 				Principal.dots.put("Rdr", (String)dot[7]);
