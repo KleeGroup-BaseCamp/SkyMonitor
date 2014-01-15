@@ -227,10 +227,10 @@ public class Airways {
 	                ArrayList<ArrayList> coordonnees = new ArrayList<ArrayList>();
 	                ArrayList<String> latlong1 = new ArrayList<String>();
 	                ArrayList<String> latlong2 = new ArrayList<String>();
-	                latlong1.add(waypointElement3.getElementsByTagName("Latitude").item(0).getTextContent());
 	                latlong1.add(waypointElement3.getElementsByTagName("Longtitude").item(0).getTextContent());
-	                latlong2.add(waypointElement4.getElementsByTagName("Latitude").item(0).getTextContent());
+	                latlong1.add(waypointElement3.getElementsByTagName("Latitude").item(0).getTextContent());
 	                latlong2.add(waypointElement4.getElementsByTagName("Longtitude").item(0).getTextContent());
+	                latlong2.add(waypointElement4.getElementsByTagName("Latitude").item(0).getTextContent());
 	                
 	                coordonnees.add(latlong1);
 	                coordonnees.add(latlong2);
