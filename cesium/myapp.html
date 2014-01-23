@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>My App</title>
+  <style>
+	@import url(http://cesiumjs.org/Cesium/Apps/Sandcastle/templates/bucket.css);
+  </style>
+  <script type="text/javascript" src="Build/Cesium/Cesium.js"></script>
+  <script type="text/javascript" src="Apps/Sandcastle/Sandcastle-header.js"></script>
+  <script type="text/javascript" src="ThirdParty/requirejs-2.1.9/require.js"></script>
+  <!--<script type="text/javascript">
+    require.config({
+        baseUrl : '../../Source',
+        waitSeconds : 60
+    });
+  </script>-->
+</head>
+<body>
+  <div id="cesiumContainer" class="fullSize"></div>
+  <div id="loadingOverlay"><h1>Loading...</h1></div>
+  <div id="toolbar"></div>
+  <script src="body.js"></script>
+</body>
+</html>

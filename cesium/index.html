@@ -7,34 +7,68 @@
     body { font-family: sans-serif; }
     li { margin-top: 5px; }
     .outer > li { margin-top: 1.4em; }
+    .smallFont { font-size: 60%; }
     </style>
 </head>
+
 <body>
 
-<script type="text/javascript">
-if (window.location.protocol === 'file:') {
-  document.write('<p><b>Warning: This file must be hosted in a web server.</br>');
-  document.write('See our <a href="http://cesiumjs.org/2013/04/12/Cesium-up-and-running/">Getting Started</a> ');
-  document.write('tutorial for a step-by-step guide.</b></p>');
-}
-</script>
-
 <ul class="outer">
-  <li>Local Links
-    <ul>
-      <li><a href="HelloWorld.html">Hello World</a> - A simple Cesium application</li>
-      <li><a href="Documentation/index.html">Documentation</a> - Complete API reference documentation</li>
-    </ul>
-  </li>
-  <li>External Links
-    <ul>
-      <li><a href="http://cesiumjs.org">Homepage</a> - Cesium homepage</li>
-      <li><a href="http://cesiumjs.org/tutorials.html">Tutorials</a> - Step by step guides for Cesium features</li>
-      <li><a href="http://cesiumjs.org/Cesium/Apps/Sandcastle/index.html">Sandcastle</a> - Interactive learning and live coding</li>
-      <li><a href="http://cesiumjs.org/forum.html">Forum</a> - Forum and mailing list, questions and feedback welcome from all skill levels</li>
-      <li><a href="https://github.com/AnalyticalGraphicsInc/cesium">GitHub</a> - Cesium GitHub repository</li>
-    </ul>
-  </li>
+    <li>
+        Apps
+        <ul>
+            <li>
+                <a href="Apps/CesiumViewer/index.html">Cesium Viewer</a>
+                (<a href="Build/Apps/CesiumViewer/index.html">built version</a>)
+            </li>
+            <li>
+                <a href="Apps/HelloWorld.html">Hello World</a>
+                (<a href="Build/HelloWorld.html">built version</a>)
+            </li>
+            <li>
+                <a href="Apps/Sandcastle/index.html">Sandcastle</a>
+            </li>
+            <li>
+                <a href="Apps/TerrainInspector/index.html">Terrain Inspector</a>
+            </li>
+            <li>
+                <a href="Apps/TimelineDemo/index.html">Timeline Demo</a>
+            </li>
+			<li>
+                <a href="myapp.html">My App</a>
+            </li>
+        </ul>
+    </li>
+    <li>
+        Tests
+        <ul>
+            <li>
+                <a href="Specs/SpecRunner.html?skipWebGLValidation">Run all tests</a>
+                <span class="smallFont">(<a href="Specs/SpecRunner.html">Run with WebGL validation</a>)</span>
+            </li>
+            <li>
+                <a href="Specs/SpecRunner.html?category=none">Select a test to run</a>
+            </li>
+            <li>
+                <a href="Specs/SpecRunner.html?category=WebGL">Run only WebGL tests</a>
+            </li>
+            <li>
+                <a href="Specs/SpecRunner.html?category=All&amp;not=WebGL">Run only non-WebGL tests</a>
+            </li>
+            <li>
+                <a href="Specs/SpecRunner.html?built=true">Run all tests against combined file</a>
+                <span class="smallFont">(<a href="Specs/SpecRunner.html?built=true&release=true">Run all tests against combined file with debug code removed</a>)</span>
+            </li>
+            <li>
+                <a href="Instrumented/jscoverage.html?../Specs/SpecRunner.html%3FbaseUrl%3D..%2FInstrumented">Run all tests with code coverage</a>
+                (build 'instrumentForCoverage' first.)
+            </li>
+        </ul>
+    </li>
+    <li>
+        <a href="Build/Documentation/index.html">Documentation</a>
+    </li>
 </ul>
+
 </body>
 </html>
