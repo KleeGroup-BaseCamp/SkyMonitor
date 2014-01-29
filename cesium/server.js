@@ -24,9 +24,31 @@ var app = connect()
 	.use(connect.static(__dirname))
 	.use(function(req, res){
 		var page = url.parse(req.url).pathname;
-		var coll = page.substring(1, page.length);
-		console.log(coll);
-		dealWithDb(res, coll);
+		var cmd = page.substring(1, page.length);
+		if (cmd == "livePts") {
+			var options = {
+				host: 'db.flightradar24.com',
+				path: '/zones/full_all.js'
+			};
+
+			var myReq = http.get(options, function(myRes) {
+				// Buffer the body entirely for processing as a whole.
+				var bodyChunks = [];
+				myRes.on('data', function(chunk) {
+					bodyChunks.push(chunk);
+				}).on('end', function() {
+					var body = Buffer.concat(bodyChunks).toString();
+					var response = body.substring(12,body.length-2);
+					res.end(response);
+				})
+			});
+
+			myReq.on('error', function(e) {
+				console.log(e.message);
+			});
+		} else {
+			dealWithDb(res, cmd);
+		}
 	})
 
 http.createServer(app).listen(200);
