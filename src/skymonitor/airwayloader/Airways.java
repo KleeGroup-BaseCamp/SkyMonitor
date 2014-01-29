@@ -139,7 +139,7 @@ public class Airways {
 	}
 
 	public static void documentsReader(InputStream legsIps, InputStream airwaysIps, InputStream waypointsIps, String mongoServer, String mongoDatabase) {
-		String mongoCollection = "AirWays";
+		String mongoCollection = "airWays";
 
 		try {
 			Mongo mongo = new Mongo(mongoServer, 27017);
@@ -176,12 +176,12 @@ public class Airways {
 	
 	public static void main(String[] args) {
 		
-		String legsFilename = "C:/Users/Giulio F/Documents/GitHub/AirwayLegs.xml";
-		String airwaysFilename = "C:/Users/Giulio F/Documents/GitHub/Airways.xml";
-		String waypointsFilename = "C:/Users/Giulio F/Documents/GitHub/Waypoints.xml";
+		String legsFilename = "../AirwayLegs.xml";
+		String airwaysFilename = "../Airways.xml";
+		String waypointsFilename = "../Waypoints.xml";
 		
 		String mongoServer = "localhost";
-		String mongoDatabase = "db3";
+		String mongoDatabase = "db";
 		
 		try {
 			InputStream legsIps = new FileInputStream(legsFilename);
@@ -300,7 +300,7 @@ public class Airways {
 		route.put("type","LineString");
 		route.put("coordinates", points);
 		document.put("Legs", way);
-		document.put("Route", route);
+		document.put("Geometry", route);
 		return document;
 	}
 	

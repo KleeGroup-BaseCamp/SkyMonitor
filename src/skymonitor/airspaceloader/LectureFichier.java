@@ -29,7 +29,7 @@ public class LectureFichier {
 	}
 	
 	public static void main(String[] args) {
-		String fichier = "sourceOpenAir.txt";
+		String fichier = "../sourceOpenAir.txt";
 		country = "Fr";
 		try {
 			InputStream ips = new FileInputStream(fichier);
