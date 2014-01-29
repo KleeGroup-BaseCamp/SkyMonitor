@@ -53,7 +53,7 @@ public class Executeur {
 				double[] coords = {(double)dot[2],(double)dot[1]};
 				point.put("type", "Point");
 				point.put("coordinates", coords);
-				Principal.dots.put("Point",point);
+				Principal.dots.put("Geometry",point);
 				
 				Principal.dots.put("Hdg", (int)dot[3]);
 				Principal.dots.put("Alt", (int)dot[4]); // En pieds

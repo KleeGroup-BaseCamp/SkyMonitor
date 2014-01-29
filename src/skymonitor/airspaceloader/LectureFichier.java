@@ -17,20 +17,20 @@ import org.apache.commons.fileupload.FileUploadException;
 
 public class LectureFichier {
 	
-	public static String pays;
+	public static String country;
 	
 	public static void completeAndInsert(BasicDBObject occ, DBCollection coll) {
 		Case.closePolygon(occ);
 
 		occ.removeField("Vpoint");
 		occ.removeField("Vdir");
-		occ.put("Pays", pays);
+		occ.put("Country", country);
 		coll.insert(occ);
 	}
 	
 	public static void main(String[] args) {
 		String fichier = "sourceOpenAir.txt";
-		pays = "Fr";
+		country = "Fr";
 		try {
 			InputStream ips = new FileInputStream(fichier);
 			loadZones(ips, "localhost", "db");
@@ -55,13 +55,13 @@ public class LectureFichier {
 				List<FileItem> files = upload.parseRequest(request);
 				for (FileItem file : files) {
 					if (file.isFormField()) {
-						pays = file.getString();
+						country = file.getString();
 					}
 					else {
 						String server = request.getServletContext().getInitParameter("mongoserver");
 						String database = request.getServletContext().getInitParameter("mongodatabase");
 						loadZones(file.getInputStream(), server, database);
-						return "Zone charg&eacute;e pour le pays : " + pays;
+						return "Zone charg&eacute;e pour le pays : " + country;
 					}
 				}
 			} catch (IOException ioe) {

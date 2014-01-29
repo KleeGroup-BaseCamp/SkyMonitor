@@ -10,6 +10,6 @@ public class ANCase extends Case {
 	
 	public void execute(String line, BasicDBObject occ, DBCollection coll) {
 		String chaine = line.substring(3).replaceAll("\\u002A.*", "");
-		occ.put("Nom", chaine);
+		occ.put("Name", chaine);
 	}
 }
