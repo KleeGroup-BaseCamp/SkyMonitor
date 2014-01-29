@@ -75,7 +75,7 @@ import com.mongodb.util.JSON;
  * 			{ From: "BOKNO", To: "ADABI", Dir: -1, Line: { type: "LineString", coordinates : [ [48, 6], [49, 6] ] } },
  * 			{ From: "ADABI", To: "CNA",   Dir: -1, Line: { type: "LineString", coordinates : [ [49, 6], [50, 6] ] } },
  * 		],
- * 		Route: { type: "LineString", coordinates : [ [40, 5], [41, 6], [42, 6], [43, 6], [44, 6], [45, 6], [46, 6], [47, 6], [48, 6], [49, 6], [50, 6] ] }
+ * 		Geometry: { type: "LineString", coordinates : [ [40, 5], [41, 6], [42, 6], [43, 6], [44, 6], [45, 6], [46, 6], [47, 6], [48, 6], [49, 6], [50, 6] ] }
  *  }
  */
 public class Airways {

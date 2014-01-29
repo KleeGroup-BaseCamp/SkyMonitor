@@ -2,9 +2,12 @@
 
 //var widget = new Cesium.CesiumWidget('cesiumContainer');
 var viewer = new Cesium.Viewer('cesiumContainer');
-var mode = viewer;
 
-function request() {
+var points = false;
+var zones = false;
+var routes = false;
+
+function request(type) {
 	var xhr_object = null; 
 
 	if(window.XMLHttpRequest) // Firefox 
@@ -16,34 +19,64 @@ function request() {
 		return; 
 	} 
 
-	xhr_object.open("GET", "qPoints", true); 
+	xhr_object.open("GET", type, true); 
 	
 	xhr_object.onreadystatechange = function() { 
 		if(xhr_object.readyState == 4) {
-			myPoints(xhr_object.responseText);
+			display(type, xhr_object.responseText);
 		}
 	}
 	
 	xhr_object.send(null); 
 }
 
-function myPoints(pointString) {
-	var point = eval('(' + pointString + ')').Point;
-
-	Sandcastle.declare(myPoints);
-
-	viewer.dataSources.removeAll();
-
-	var dataSource = new Cesium.GeoJsonDataSource();
-	dataSource.load(point).then(function() {
+function display(type, objectString) {
+	// (String) type is the name of MongoDB Collection
+	var geometriesArray = JSON.parse(objectString);
+	
+	Sandcastle.declare(display);
+	
+	var dataSources = new Cesium.DataSourceCollection();
+	
+	for (var key in geometriesArray) {
+		var dataSource = new Cesium.GeoJsonDataSource();
+		try {dataSource.load(geometriesArray[key].Geometry);}
+		catch (e) {console.log("There are invalid zone geometries!");}
 		viewer.dataSources.add(dataSource);
-		viewer.homeButton.viewModel.command();
-	});
+	}
 }
 
 Sandcastle.addToolbarButton('myPoints', function() {
-	request();
-	Sandcastle.highlight(myPoints);
+	if (!points) {
+		request("points");
+		Sandcastle.highlight(display);
+		points = !points;
+	} else {
+		viewer.dataSources.removeAll();
+		points = !points;
+	}
+});
+
+Sandcastle.addToolbarButton('myZones', function() {
+	if (!zones) {
+		request("zones");
+		Sandcastle.highlight(display);
+		zones = !zones;
+	} else {
+		viewer.dataSources.removeAll();
+		zones = !zones;
+	}
+});
+
+Sandcastle.addToolbarButton('myRoutes', function() {
+	if (!routes) {
+		request("airWays");
+		Sandcastle.highlight(display);
+		routes = !routes;
+	} else {
+		viewer.dataSources.removeAll();
+		routes = !routes;
+	}
 });
 
 Sandcastle.finishedLoading();
