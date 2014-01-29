@@ -4,9 +4,7 @@
 var viewer = new Cesium.Viewer('cesiumContainer');
 
 function displayLive(objectString) {
-	// (String) type is the name of MongoDB Collection
-	try {var object = JSON.parse(objectString);}
-	catch (e) {}
+	var object = JSON.parse(objectString);
 	
 	viewer.dataSources.removeAll();
 	
@@ -14,21 +12,10 @@ function displayLive(objectString) {
 	
 	var dataSources = new Cesium.DataSourceCollection();
 	
-	var count = 0;
 	for (var key in object) {
-		if (key != "version" && key != "full_count" && count < 500) {
-			var dataSource = new Cesium.GeoJsonDataSource();
-			var point = {
-				"type": "Point",
-				"coordinates": [
-					object[key][2],
-					object[key][1]
-				]
-			};
-			dataSource.load(point);
-			viewer.dataSources.add(dataSource);
-			count++;
-		} else {break;}
+		var dataSource = new Cesium.GeoJsonDataSource();
+		dataSource.load(object[key]);
+		viewer.dataSources.add(dataSource);
 	}
 }
 

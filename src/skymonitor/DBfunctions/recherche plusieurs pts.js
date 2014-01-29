@@ -2,7 +2,7 @@
 Mode d'emploi pour shell mongo :
 1. Remplacer <conditions> dans la déclaration de realPoint ci-dessous par des conditions de query mongodb correspondant au point recherché ou déclarez directement le point sous cette forme :
 {
-	Point: {
+	Geometry: {
 		type: "Point",
 		coordinates: [<Lon>, <Lat>]
 	},
@@ -22,12 +22,12 @@ function zoneContainsPtDoc (point, invalidZones, containingZones) {
 			try {
 				switch(zone.Geometry.type) {
 					case "Polygon":
-						if (db.points.count({_id:point._id, Point: {$geoWithin: {$geometry: zone.Geometry}}}) != 0) {
+						if (db.points.count({_id:point._id, Geometry: {$geoWithin: {$geometry: zone.Geometry}}}) != 0) {
 							containingZones[point._id].push(zone._id);
 						}
 						break;
 					default:
-						if (db.points.count({_id:point._id, Point: {$geoWithin: {$centerSphere: zone.Geometry}}}) != 0) {
+						if (db.points.count({_id:point._id, Geometry: {$geoWithin: {$centerSphere: zone.Geometry}}}) != 0) {
 							containingZones[point._id].push(zone._id);
 						}
 				}

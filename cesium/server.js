@@ -38,8 +38,25 @@ var app = connect()
 					bodyChunks.push(chunk);
 				}).on('end', function() {
 					var body = Buffer.concat(bodyChunks).toString();
-					var response = body.substring(12,body.length-2);
-					res.end(response);
+					var object = {};
+					var response = [];
+					try {object = JSON.parse(body.substring(12,body.length-2));}
+					catch (e) {}
+					var count = 0;
+					for (var key in object) {
+						if (key != "version" && key != "full_count" && count < 500) {
+							var point = {
+								"type": "Point",
+								"coordinates": [
+									object[key][2],
+									object[key][1]
+								]
+							};
+							response.push(point);
+							count++;
+						} else {break;}
+					}
+					res.end(JSON.stringify(response));
 				})
 			});
 
