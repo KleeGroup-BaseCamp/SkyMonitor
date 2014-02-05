@@ -2,11 +2,12 @@
 
 //var widget = new Cesium.CesiumWidget('cesiumContainer');
 var viewer = new Cesium.Viewer('cesiumContainer');
+var liveTracking = false;
 
 function displayLive(objectString) {
 	var object = JSON.parse(objectString);
 	
-	viewer.dataSources.removeAll();
+	viewer.dataSources.removeAll(true);
 	
 	Sandcastle.declare(displayLive);
 	
@@ -20,30 +21,31 @@ function displayLive(objectString) {
 }
 
 setInterval(function(){
-	var xhr_object = null; 
+	if (liveTracking) {
+		var xhr_object = null; 
 
-	if(window.XMLHttpRequest) // Firefox 
-		xhr_object = new XMLHttpRequest(); 
-	else if(window.ActiveXObject) // Internet Explorer 
-		xhr_object = new ActiveXObject("Microsoft.XMLHTTP"); 
-	else { // XMLHttpRequest non supporté par le navigateur 
-		alert("Votre navigateur ne supporte pas les objets XMLHTTPRequest..."); 
-		return; 
-	}
-	
-	xhr_object.open("GET", "livePts", true); 
-	
-	xhr_object.onreadystatechange = function() { 
-		if(xhr_object.readyState == 4) {
-			displayLive(xhr_object.responseText);
+		if(window.XMLHttpRequest) // Firefox 
+			xhr_object = new XMLHttpRequest(); 
+		else if(window.ActiveXObject) // Internet Explorer 
+			xhr_object = new ActiveXObject("Microsoft.XMLHTTP"); 
+		else { // XMLHttpRequest non supporté par le navigateur 
+			alert("Votre navigateur ne supporte pas les objets XMLHTTPRequest..."); 
+			return; 
 		}
+		
+		xhr_object.open("GET", "livePts", true); 
+		
+		xhr_object.onreadystatechange = function() { 
+			if(xhr_object.readyState == 4) {
+				displayLive(xhr_object.responseText);
+			}
+		}
+		
+		xhr_object.send(null); 
+		
+		Sandcastle.highlight(displayLive);
 	}
-	
-	xhr_object.send(null); 
-	
-	Sandcastle.highlight(displayLive);
 }, 3000);
-
 
 var points = false;
 var zones = false;
@@ -92,33 +94,35 @@ Sandcastle.addToolbarButton('myPoints', function() {
 	if (!points) {
 		request("points");
 		Sandcastle.highlight(display);
-		points = !points;
 	} else {
 		viewer.dataSources.removeAll();
-		points = !points;
 	}
+	points = !points;
 });
 
 Sandcastle.addToolbarButton('myZones', function() {
 	if (!zones) {
 		request("zones");
 		Sandcastle.highlight(display);
-		zones = !zones;
 	} else {
 		viewer.dataSources.removeAll();
-		zones = !zones;
 	}
+	zones = !zones;
 });
 
 Sandcastle.addToolbarButton('myRoutes', function() {
 	if (!routes) {
 		request("airWays");
 		Sandcastle.highlight(display);
-		routes = !routes;
 	} else {
 		viewer.dataSources.removeAll();
-		routes = !routes;
 	}
+	routes = !routes;
+});
+
+Sandcastle.addToolbarButton('liveTracking', function() {
+	liveTracking = !liveTracking;
+	viewer.dataSources.removeAll();
 });
 
 Sandcastle.finishedLoading();

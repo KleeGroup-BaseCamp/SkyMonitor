@@ -13,4 +13,6 @@ exports.query = function(coll) {
 	}
 };
 
-exports.options = {limit: 500};
+exports.liveFilter = 20;
+
+exports.options = {limit: 20};
