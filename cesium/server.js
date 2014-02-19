@@ -1,6 +1,18 @@
 var http = require('http');
 var connect = require('connect');
 var url = require('url');
+var pointsSourceURL = {
+	host: 'db.flightradar24.com',
+	path: '/zones/full_all.js'
+};
+
+/*
+ * Ajout d'une méthode setInterval qui stocke toutes les 1500 ms le contenu de full_all.js dans la string Points.
+ * À la requête HTTP de body.js, la méthode sendPoints l'envoie telle quelle et le traitement des recoupements se fait dans body.js
+ * (cf. commentaires dans body.js pour les points à régler).
+ */
+
+var Points = "";
 
 function queryDb(res, coll) {
 	var MongoClient = require('mongodb').MongoClient
@@ -20,32 +32,47 @@ function queryDb(res, coll) {
 	});
 }
 
-function queryFlightRadar(res) {
-	var options = {
-		host: 'db.flightradar24.com',
-		path: '/zones/full_all.js'
-	};
-
-	var myReq = http.get(options, function(myRes) {
+setInterval(function() {	
+	var myReq = http.get(pointsSourceURL, function(myRes) {
 		var bodyChunks = [];
 		myRes.on('data', function(chunk) {
 			bodyChunks.push(chunk);
 		}).on('end', function() {
 			var body = Buffer.concat(bodyChunks).toString();
-			var object = {};
-			try {object = JSON.parse(body.substring(12,body.length-2));}
+			Points = body.substring(12,body.length-2);
+		});
+	});
+
+	myReq.on('error', function(e) {
+		console.log(e.message);
+	});
+},1500);
+
+function sendPoints(res) {
+	res.end(Points);
+}
+
+function queryFlightRadar(res) {
+	var myReq = http.get(pointsSourceURL, function(myRes) {
+		var bodyChunks = [];
+		myRes.on('data', function(chunk) {
+			bodyChunks.push(chunk);
+		}).on('end', function() {
+			var body = Buffer.concat(bodyChunks).toString();
+			var newPoints = {};
+			try {newPoints = JSON.parse(body.substring(12,body.length-2));}
 			catch (e) {console.log("Erreur de parsing.");}
 			
 			var response = [];
 			var count = 0;
 			var limit = require('./queries').liveFilter;
-			for (var key in object) {
+			for (var key in newPoints) {
 				if (key != "version" && key != "full_count" && count < limit) {
 					var point = {
 						"type": "Point",
 						"coordinates": [
-							object[key][2], // Lon
-							object[key][1]	// Lat
+							newPoints[key][2], // Lon
+							newPoints[key][1]  // Lat
 						],
 						"name": key
 					};
@@ -68,7 +95,8 @@ var app = connect()
 		var page = url.parse(req.url).pathname;
 		var cmd = page.substring(1, page.length);
 		if (cmd == "livePts") {
-			queryFlightRadar(res);
+			//queryFlightRadar(res);
+			sendPoints(res);
 		} else {
 			queryDb(res, cmd);
 		}

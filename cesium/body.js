@@ -3,20 +3,41 @@
 //var widget = new Cesium.CesiumWidget('cesiumContainer');
 var viewer = new Cesium.Viewer('cesiumContainer');
 var liveTracking = false;
+var DataSourcesBuffer = {};
+
+/*
+ * En l'état, displayLive n'efface pas les points s'ils n'apparaissent plus sur FlightRadar (en se basant sur leur key).
+ * Autrement dit, si un key devient "désuet", le point correspondant ne sera jamais effacé de viewer.dataSources.
+ * En moyenne plus de la moitié des points sont conservés d'une itération sur l'autre, mais les temps restent trop longs.
+ */
+
 
 function displayLive(objectString) {
-	var object = JSON.parse(objectString);
+	var newPoints = JSON.parse(objectString);
+	delete newPoints.version;
+	delete newPoints.full_count;
 	
-	viewer.dataSources.removeAll(true);
-	
-	Sandcastle.declare(displayLive);
-	
-	var dataSources = new Cesium.DataSourceCollection();
-	
-	for (var key in object) {
-		var dataSource = new Cesium.GeoJsonDataSource();
-		dataSource.load(object[key]);
-		viewer.dataSources.add(dataSource);
+	for (var key in newPoints) {
+		var newLon = newPoints[key][2]
+			, newLat = newPoints[key][1];
+		if (key in DataSourcesBuffer
+			&& (newPoints[key][10] == DataSourcesBuffer[key][10]
+				|| (newLon == DataSourcesBuffer[key][2] && newLat == DataSourcesBuffer[key][1]))) {}
+		else {
+			try {viewer.dataSources.remove(DataSourcesBuffer[key][18]);}
+			catch (e) {}
+			
+			var dataSource = new Cesium.GeoJsonDataSource();
+			var newPoint = {
+				'type': "Point",
+				'coordinates': [newLon, newLat]
+			}
+			dataSource.load(newPoint);
+			newPoints[key].push(dataSource); // newPoints[key][18] == dataSource
+			DataSourcesBuffer[key] = newPoints[key];
+			
+			viewer.dataSources.add(dataSource);
+		}
 	}
 }
 
@@ -42,8 +63,6 @@ setInterval(function(){
 		}
 		
 		xhr_object.send(null); 
-		
-		Sandcastle.highlight(displayLive);
 	}
 }, 3000);
 
@@ -77,11 +96,7 @@ function request(type) {
 function display(type, objectString) {
 	// (String) type is the name of MongoDB Collection
 	var geometriesArray = JSON.parse(objectString);
-	
-	Sandcastle.declare(display);
-	
-	var dataSources = new Cesium.DataSourceCollection();
-	
+		
 	for (var key in geometriesArray) {
 		var dataSource = new Cesium.GeoJsonDataSource();
 		try {dataSource.load(geometriesArray[key].Geometry);}
@@ -93,7 +108,6 @@ function display(type, objectString) {
 Sandcastle.addToolbarButton('myPoints', function() {
 	if (!points) {
 		request("points");
-		Sandcastle.highlight(display);
 	} else {
 		viewer.dataSources.removeAll();
 	}
@@ -103,7 +117,6 @@ Sandcastle.addToolbarButton('myPoints', function() {
 Sandcastle.addToolbarButton('myZones', function() {
 	if (!zones) {
 		request("zones");
-		Sandcastle.highlight(display);
 	} else {
 		viewer.dataSources.removeAll();
 	}
@@ -113,7 +126,6 @@ Sandcastle.addToolbarButton('myZones', function() {
 Sandcastle.addToolbarButton('myRoutes', function() {
 	if (!routes) {
 		request("airWays");
-		Sandcastle.highlight(display);
 	} else {
 		viewer.dataSources.removeAll();
 	}
