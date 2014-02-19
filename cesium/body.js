@@ -131,6 +131,18 @@ function request(type) {
 	xhr_object.send(null); 
 }
 
+function display(type, objectString) {
+	// (String) type is the name of MongoDB Collection
+	var geometriesArray = JSON.parse(objectString);
+		
+	for (var key in geometriesArray) {
+		var dataSource = new Cesium.GeoJsonDataSource();
+		try {dataSource.load(geometriesArray[key].Geometry);}
+		catch (e) {console.log("There are invalid zone geometries!");}
+		viewer.dataSources.add(dataSource);
+	}
+}
+
 Sandcastle.addToolbarButton('myPoints', function() {
 	if (!points) {
 		request("points");
