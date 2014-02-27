@@ -16,4 +16,4 @@ exports.query = function(coll) {
 
 exports.liveFilter = 20;
 
-exports.options = {limit: 2};
+exports.options = {limit: 50};

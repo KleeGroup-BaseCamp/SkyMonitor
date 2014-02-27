@@ -5,6 +5,30 @@ var viewer = new Cesium.Viewer('cesiumContainer');
 var ellipsoid = viewer.centralBody.getEllipsoid();
 var scene = viewer.scene;
 var primitives = scene.getPrimitives();
+var centralBody = scene.getPrimitives().getCentralBody();
+centralBody.depthTestAgainstTerrain = true;
+
+var cesiumTerrainProvider = new Cesium.CesiumTerrainProvider({
+	url : 'http://cesiumjs.org/smallterrain',
+	credit : 'Terrain data courtesy Analytical Graphics, Inc.'
+});
+
+var ellipsoidProvider = new Cesium.EllipsoidTerrainProvider();
+
+var vrTheWorldProvider = new Cesium.VRTheWorldTerrainProvider({
+	url : 'http://www.vr-theworld.com/vr-theworld/tiles1.0.0/73/',
+	credit : 'Terrain data courtesy VT MÄK'
+});
+
+var terrainProviders = [
+	{ name : 'Flat', provider : ellipsoidProvider },
+	{ name : 'VRTheWorldTerrainProvider', provider : vrTheWorldProvider },
+	{ name : 'CesiumTerrainProvider', provider : cesiumTerrainProvider }
+];
+
+centralBody.terrainProvider = ellipsoidProvider;
+
+createTerrainMenu(terrainProviders);
 
 var liveTracking = false;
 var DataSourcesBuffer = {};
@@ -101,7 +125,7 @@ Sandcastle.addToolbarButton('myPoints', function() {
 	if (!points) {
 		request("points");
 	} else {
-		viewer.dataSources.removeAll();
+		scene.getPrimitives().removeAll();
 	}
 	points = !points;
 });
