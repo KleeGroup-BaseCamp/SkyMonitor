@@ -7,6 +7,16 @@ var scene = viewer.scene;
 var primitives = scene.getPrimitives();
 var centralBody = scene.getPrimitives().getCentralBody();
 centralBody.depthTestAgainstTerrain = true;
+/*
+var homeButtonCommand = Cesium.createCommand(function() {
+	var destination = Cesium.Cartographic.fromDegrees(2.351944, 48.856667, 15000.0);
+
+	var flight = Cesium.CameraFlightPath.createAnimationCartographic(scene, {
+		destination : destination
+	});
+	scene.getAnimations().add(flight);
+});
+*/
 
 var cesiumTerrainProvider = new Cesium.CesiumTerrainProvider({
 	url : 'http://cesiumjs.org/smallterrain',
@@ -26,7 +36,7 @@ var terrainProviders = [
 	{ name : 'CesiumTerrainProvider', provider : cesiumTerrainProvider }
 ];
 
-centralBody.terrainProvider = ellipsoidProvider;
+centralBody.terrainProvider = ellipsoidProvider; // Default terrainProvider
 
 createTerrainMenu(terrainProviders);
 
