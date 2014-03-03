@@ -10,10 +10,10 @@ exports.query = function(coll) {
 		return {$where: "typeof this.Geometry != Array"};
 	}
 	else if (coll == "airWays") {
-		return {Ident: "A10"};
+		return {};
 	}
 };
 
 exports.liveFilter = 20;
 
-exports.options = {limit: 50};
+exports.options = {limit: 100};

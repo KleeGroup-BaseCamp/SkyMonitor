@@ -39,7 +39,8 @@ setInterval(function() {
 			bodyChunks.push(chunk);
 		}).on('end', function() {
 			var body = Buffer.concat(bodyChunks).toString();
-			Points = body.substring(12,body.length-2);
+			var regExp = /pd_callback.*/;
+			Points = regExp.exec(body)[0].substring(12,body.length-2);
 		});
 	});
 
@@ -49,7 +50,9 @@ setInterval(function() {
 },1500);
 
 function sendPoints(res) {
-	res.end(Points);
+	var pointsToSend = JSON.parse(Points);
+	pointsToSend.limit = require('./queries').options.limit;
+	res.end(stringify(pointsToSend));
 }
 
 function queryFlightRadar(res) {

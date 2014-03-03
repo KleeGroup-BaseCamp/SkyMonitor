@@ -14,28 +14,31 @@ function displayLive(objectString) {
 	var newPoints = JSON.parse(objectString);
 	delete newPoints.version;
 	delete newPoints.full_count;
+	var counter = newPoints.limit;
 	
 	for (var key in newPoints) {
-		var newLon = newPoints[key][2]
-			, newLat = newPoints[key][1];
-		if (key in DataSourcesBuffer
-			&& (newPoints[key][10] == DataSourcesBuffer[key][10]
-				|| (newLon == DataSourcesBuffer[key][2] && newLat == DataSourcesBuffer[key][1]))) {}
-		else {
-			try {viewer.dataSources.remove(DataSourcesBuffer[key][18]);}
-			catch (e) {}
-			
-			var dataSource = new Cesium.GeoJsonDataSource();
-			var newPoint = {
-				'type': "Point",
-				'coordinates': [newLon, newLat]
+		if (counter > 0) {
+			var newLon = newPoints[key][2]
+				, newLat = newPoints[key][1];
+			if (key in DataSourcesBuffer
+				&& (newPoints[key][10] == DataSourcesBuffer[key][10]
+					|| (newLon == DataSourcesBuffer[key][2] && newLat == DataSourcesBuffer[key][1]))) {}
+			else {
+				try {viewer.dataSources.remove(DataSourcesBuffer[key][18]);}
+				catch (e) {}
+				
+				var dataSource = new Cesium.GeoJsonDataSource();
+				var newPoint = {
+					'type': "Point",
+					'coordinates': [newLon, newLat]
+				}
+				dataSource.load(newPoint);
+				newPoints[key].push(dataSource); // newPoints[key][18] == dataSource
+				DataSourcesBuffer[key] = newPoints[key];
+				
+				viewer.dataSources.add(dataSource);
 			}
-			dataSource.load(newPoint);
-			newPoints[key].push(dataSource); // newPoints[key][18] == dataSource
-			DataSourcesBuffer[key] = newPoints[key];
-			
-			viewer.dataSources.add(dataSource);
-		}
+		} else {break;}
 	}
 }
 
@@ -72,7 +75,6 @@ function display(type, objectString) {
 	else if (type == "airWays") {
 		for (var key in geometriesArray) {
 			var legs = geometriesArray[key].Legs;
-			console.log(geometriesArray[key].Ident);
 			for (var legKey in legs) {
 				var dataSource = new Cesium.GeoJsonDataSource();
 				try {
