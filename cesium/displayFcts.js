@@ -37,6 +37,7 @@ function displayLive(objectString) {
 				DataSourcesBuffer[key] = newPoints[key];
 				
 				viewer.dataSources.add(dataSource);
+				counter--;
 			}
 		} else {break;}
 	}
