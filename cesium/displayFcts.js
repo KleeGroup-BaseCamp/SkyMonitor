@@ -10,12 +10,9 @@ function createTerrainMenu(terrainProviders) {
         }, 'terrainMenu');
 }
 
-function displayLive(objectString) {
-	var newPoints = JSON.parse(objectString);
-	delete newPoints.version;
-	delete newPoints.full_count;
+function selectiveDisplay(newPoints) {
 	var counter = newPoints.limit;
-	
+	delete newPoints.limit;
 	for (var key in newPoints) {
 		if (counter > 0) {
 			var newLon = newPoints[key][2]
@@ -43,8 +40,46 @@ function displayLive(objectString) {
 	}
 }
 
+function displayWithBillboard(newPoints) {
+	
+	scene.getPrimitives().removeAll();
+	var dataSources = new Cesium.DataSourceCollection();
+	
+	var image = new Image();
+	image.onload = function() {
+		var billboards = new Cesium.BillboardCollection();
+		
+		var textureAtlas = scene.getContext().createTextureAtlas({
+			image: image
+		});
+		billboards.setTextureAtlas(textureAtlas);
+		
+		for (var key in newPoints) {
+			billboards.add({
+				imageIndex: 0,
+				position: ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(
+					newPoints[key][2],			//Lon
+					newPoints[key][1],			//Lat
+					newPoints[key][4]*0.3048	//Alt
+				))
+			});
+		}
+		scene.getPrimitives().add(billboards);
+	}
+	image.src = './Apps/Sandcastle/images/facility.gif';
+}
+
+function displayLive(objectString) {
+	var newPoints = JSON.parse(objectString);
+	delete newPoints.version;
+	delete newPoints.full_count;
+	
+	//selectiveDisplay(newPoints);
+	displayWithBillboard(newPoints);
+}
+
 function display(type, objectString) {
-	// (String) type is the name of MongoDB Collection
+	// (String)type is the name of MongoDB Collection
 	var geometriesArray = JSON.parse(objectString);
 	
 	var dataSources = new Cesium.DataSourceCollection();
@@ -55,7 +90,7 @@ function display(type, objectString) {
 			var billboards = new Cesium.BillboardCollection();
 			
 			var textureAtlas = scene.getContext().createTextureAtlas({
-                image : image
+                image: image
             });
             billboards.setTextureAtlas(textureAtlas);
 			
@@ -65,9 +100,9 @@ function display(type, objectString) {
 					position: ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(
 						geometriesArray[key].Lon,
 						geometriesArray[key].Lat,
-						geometriesArray[key].Alt*0.3048/100 // Le /100 n'est dû qu'à une erreur dans l'enregistrement des points.
-					))										// Le code dataCollector est maintenant corrigé mais dans mongoDb ils sont tjs faux.
-				});
+						geometriesArray[key].Alt*0.3048/100 // Le /100 n'est dû qu'à une erreur dans l'enregistrement des points
+					))										// (ils sont en pieds*100 dans mongoDB).
+				});											// Le code dataCollector est maintenant corrigé mais dans mongoDb ils sont tjs faux.
 			}
 			scene.getPrimitives().add(billboards);
 		}

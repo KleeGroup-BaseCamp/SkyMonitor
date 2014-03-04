@@ -48,7 +48,7 @@ setInterval(function() {
 	myReq.on('error', function(e) {
 		console.log(e.message);
 	});
-},1500);
+},2500);
 
 function sendPoints(res) {
 	var pointsToSend = JSON.parse(Points);
