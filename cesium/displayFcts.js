@@ -41,18 +41,17 @@ function selectiveDisplay(newPoints) {
 }
 
 function displayWithBillboard(newPoints) {
-	
-	scene.getPrimitives().removeAll();
+	scene.primitives.removeAll();
 	var dataSources = new Cesium.DataSourceCollection();
 	
 	var image = new Image();
 	image.onload = function() {
 		var billboards = new Cesium.BillboardCollection();
 		
-		var textureAtlas = scene.getContext().createTextureAtlas({
+		var textureAtlas = scene.context.createTextureAtlas({
 			image: image
 		});
-		billboards.setTextureAtlas(textureAtlas);
+		billboards.textureAtlas = textureAtlas;
 		
 		for (var key in newPoints) {
 			billboards.add({
@@ -64,9 +63,9 @@ function displayWithBillboard(newPoints) {
 				))
 			});
 		}
-		scene.getPrimitives().add(billboards);
+		scene.primitives.add(billboards);
 	}
-	image.src = './Apps/Sandcastle/images/facility.gif';
+	image.src = './facility.gif';
 }
 
 function displayLive(objectString) {
@@ -89,10 +88,10 @@ function display(type, objectString) {
         image.onload = function() {
 			var billboards = new Cesium.BillboardCollection();
 			
-			var textureAtlas = scene.getContext().createTextureAtlas({
+			var textureAtlas = scene.context.createTextureAtlas({
                 image: image
             });
-            billboards.setTextureAtlas(textureAtlas);
+            billboards.textureAtlas = textureAtlas;
 			
 			for (var key in geometriesArray) {
 				billboards.add({
@@ -104,9 +103,9 @@ function display(type, objectString) {
 					))										// (ils sont en pieds*100 dans mongoDB).
 				});											// Le code dataCollector est maintenant corrigé mais dans mongoDb ils sont tjs faux.
 			}
-			scene.getPrimitives().add(billboards);
+			scene.primitives.add(billboards);
 		}
-		image.src = './Apps/Sandcastle/images/facility.gif';
+		image.src = './plane.gif';
 	}
 	else if (type == "airWays") {
 		for (var key in geometriesArray) {
@@ -122,10 +121,15 @@ function display(type, objectString) {
 		}
 	} else {
 		for (var key in geometriesArray) {
-			var dataSource = new Cesium.GeoJsonDataSource();
-			try {dataSource.load(geometriesArray[key].Geometry);}
+			var testZoneValidity = false;
+			try {testZoneValidity = (geometriesArray[key].Geometry.coordinates[0].length > 3);}
 			catch (e) {console.log("There are invalid zone geometries!");}
-			viewer.dataSources.add(dataSource);
+			if (testZoneValidity) {
+				var dataSource = new Cesium.GeoJsonDataSource();
+				try {dataSource.load(geometriesArray[key].Geometry);}
+				catch (e) {console.log("There are invalid zone geometries!");}
+				viewer.dataSources.add(dataSource);
+			}
 		}
 	}
 }

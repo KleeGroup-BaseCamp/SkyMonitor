@@ -1,10 +1,10 @@
 "use strict";
 
 var viewer = new Cesium.Viewer('cesiumContainer');
-var ellipsoid = viewer.centralBody.getEllipsoid();
+var ellipsoid = viewer.centralBody.ellipsoid;
 var scene = viewer.scene;
-var primitives = scene.getPrimitives();
-var centralBody = scene.getPrimitives().getCentralBody();
+var primitives = scene.primitives;
+var centralBody = scene.primitives.centralBody;
 centralBody.depthTestAgainstTerrain = true;
 
 var cesiumTerrainProvider = new Cesium.CesiumTerrainProvider({
@@ -94,7 +94,7 @@ Sandcastle.addToolbarButton('myPoints', function() {
 	if (!points) {
 		request("points");
 	} else {
-		scene.getPrimitives().removeAll();
+		scene.primitives.removeAll();
 	}
 	points = !points;
 });
