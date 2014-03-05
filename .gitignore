@@ -9,3 +9,12 @@ classes/
 *.xml
 *.war
 .metadata/
+cesium/Apps/*
+cesium/Build/*
+cesium/node_modules/*
+cesium/Source/*
+cesium/Specs/*
+cesium/thirdParty/*
+cesium/CHANGES.md
+cesium/LICENSE.md
+cesium/README.md

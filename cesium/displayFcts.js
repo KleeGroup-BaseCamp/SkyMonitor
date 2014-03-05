@@ -105,7 +105,7 @@ function display(type, objectString) {
 			}
 			scene.primitives.add(billboards);
 		}
-		image.src = './plane.gif';
+		image.src = './facility.gif';
 	}
 	else if (type == "airWays") {
 		for (var key in geometriesArray) {
