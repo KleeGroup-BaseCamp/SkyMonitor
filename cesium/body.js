@@ -5,7 +5,14 @@ var ellipsoid = viewer.centralBody.ellipsoid;
 var scene = viewer.scene;
 var primitives = scene.primitives;
 var centralBody = scene.primitives.centralBody;
-centralBody.depthTestAgainstTerrain = true;
+
+var billboards = new Cesium.BillboardCollection();
+var DataSourcesBuffer = {};
+
+var liveTracking = "false";
+var points = false;
+var zones = false;
+var routes = false;
 
 var cesiumTerrainProvider = new Cesium.CesiumTerrainProvider({
 	url : 'http://cesiumjs.org/smallterrain',
@@ -29,17 +36,8 @@ centralBody.terrainProvider = ellipsoidProvider; // Default terrainProvider
 
 createTerrainMenu(terrainProviders);
 
-var liveTracking = false;
-var DataSourcesBuffer = {};
-
-/*
- * En l'état, displayLive n'efface pas les points s'ils n'apparaissent plus sur FlightRadar (en se basant sur leur key).
- * Autrement dit, si un key devient "désuet", le point correspondant ne sera jamais effacé de viewer.dataSources.
- * En moyenne plus de la moitié des points sont conservés d'une itération sur l'autre, mais les temps restent trop longs.
- */
-
 setInterval(function(){
-	if (liveTracking) {
+	if (liveTracking == "true") {
 		var xhr_object = null; 
 
 		if(window.XMLHttpRequest) // Firefox 
@@ -62,10 +60,6 @@ setInterval(function(){
 		xhr_object.send(null); 
 	}
 }, 5000);
-
-var points = false;
-var zones = false;
-var routes = false;
 
 function request(type) {
 	var xhr_object = null; 
@@ -94,7 +88,8 @@ Sandcastle.addToolbarButton('myPoints', function() {
 	if (!points) {
 		request("points");
 	} else {
-		scene.primitives.removeAll();
+		removeWithoutDestroying(primitives,billboards);
+		billboards.removeAll();
 	}
 	points = !points;
 });
@@ -118,8 +113,17 @@ Sandcastle.addToolbarButton('myRoutes', function() {
 });
 
 Sandcastle.addToolbarButton('liveTracking', function() {
-	liveTracking = !liveTracking;
-	viewer.dataSources.removeAll();
+	if (liveTracking == "false") {
+		liveTracking = "true";
+	}
+	else if (liveTracking == "true") {
+		liveTracking = "stopped";
+	}
+	else { //liveTracking == "stopped"
+		liveTracking = "false";
+		removeWithoutDestroying(primitives,billboards);
+		billboards.removeAll();
+	}
 });
 
 Sandcastle.finishedLoading();

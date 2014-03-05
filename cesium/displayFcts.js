@@ -10,6 +10,18 @@ function createTerrainMenu(terrainProviders) {
         }, 'terrainMenu');
 }
 
+function cloneBillboardCollection(origin) {
+	var buffer = new Cesium.CompositePrimitive();
+	buffer.add(origin);
+	var copy = buffer.get(origin);
+	return copy;
+}
+
+function removeWithoutDestroying(CompositePrimitive, BillboardCollection) {
+	var buffer = cloneBillboardCollection(BillboardCollection);
+	CompositePrimitive.remove(buffer);
+}
+
 function selectiveDisplay(newPoints) {
 	var counter = newPoints.limit;
 	delete newPoints.limit;
@@ -41,12 +53,11 @@ function selectiveDisplay(newPoints) {
 }
 
 function displayWithBillboard(newPoints) {
-	scene.primitives.removeAll();
-	var dataSources = new Cesium.DataSourceCollection();
+	removeWithoutDestroying(primitives,billboards);
 	
 	var image = new Image();
 	image.onload = function() {
-		var billboards = new Cesium.BillboardCollection();
+		billboards.removeAll();
 		
 		var textureAtlas = scene.context.createTextureAtlas({
 			image: image
@@ -63,9 +74,9 @@ function displayWithBillboard(newPoints) {
 				))
 			});
 		}
-		scene.primitives.add(billboards);
+		primitives.add(billboards);
 	}
-	image.src = './facility.gif';
+	image.src = './plane.gif';
 }
 
 function displayLive(objectString) {
@@ -81,12 +92,10 @@ function display(type, objectString) {
 	// (String)type is the name of MongoDB Collection
 	var geometriesArray = JSON.parse(objectString);
 	
-	var dataSources = new Cesium.DataSourceCollection();
-	
 	if (type == "points") {
 		var image = new Image();
         image.onload = function() {
-			var billboards = new Cesium.BillboardCollection();
+			billboards.removeAll();
 			
 			var textureAtlas = scene.context.createTextureAtlas({
                 image: image
@@ -103,9 +112,9 @@ function display(type, objectString) {
 					))										// (ils sont en pieds*100 dans mongoDB).
 				});											// Le code dataCollector est maintenant corrigé mais dans mongoDb ils sont tjs faux.
 			}
-			scene.primitives.add(billboards);
+			primitives.add(billboards);
 		}
-		image.src = './facility.gif';
+		image.src = './plane.gif';
 	}
 	else if (type == "airWays") {
 		for (var key in geometriesArray) {
