@@ -4,10 +4,9 @@ var viewer = new Cesium.Viewer('cesiumContainer');
 var ellipsoid = viewer.centralBody.ellipsoid;
 var scene = viewer.scene;
 var primitives = scene.primitives;
-var centralBody = scene.primitives.centralBody;
+var centralBody = primitives.centralBody;
 
 var billboards = new Cesium.BillboardCollection();
-var DataSourcesBuffer = {};
 
 var liveTracking = "false";
 var points = false;
