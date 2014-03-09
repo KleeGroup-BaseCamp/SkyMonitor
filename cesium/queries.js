@@ -1,7 +1,3 @@
-/*
- * 
- */
-
 exports.query = function(coll) {
 	if (coll == "points") {
 		return {
@@ -14,10 +10,20 @@ exports.query = function(coll) {
 		return {$where: "typeof this.Geometry != Array"};
 	}
 	else if (coll == "airWays") {
-		return {$where: "rechercheRoute(this)"};
+		return {$where: "airWaysSearch(this)"};
 	}
 };
 
-exports.liveFilter = 20;
+exports.airWaysSearch = function(route) {
+	var result = false;
+	for (var key in route.Legs) {
+		var From = route.Legs[key].Line.coordinates[0]
+		if (From[0] > -4.8 && From[0] < 8.3 && From[1] > 42.2 && From[1] < 51.1) {
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
 
 exports.options = {};

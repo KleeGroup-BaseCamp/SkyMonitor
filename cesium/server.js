@@ -1,26 +1,33 @@
 var http = require('http');
 var connect = require('connect');
 var url = require('url');
+var Db = require('mongodb').Db;
+var Server = require('mongodb').Server;
+var assert = require('assert');
 var pointsSourceURL = {
 	host: 'db.flightradar24.com',
 	path: '/zones/full_all.js'
 };
-var myDb = "db";
-
-/*
- * Ajout d'une méthode setInterval qui stocke toutes les 2500 ms le contenu de full_all.js dans la string Points.
- * À la requête HTTP de body.js, la méthode sendPoints l'envoie telle quelle et le traitement des recoupements se fait dans body.js
- * (cf. commentaires dans body.js pour les points à régler).
- */
+var db = new Db('db', new Server('localhost', 27017), {safe: false});
 
 var Points = "";
 
+db.open(function (err, db) {
+	assert.equal(null, err);
+
+	var collection = db.collection('system.js');
+	var airWaysSearch = require('./queries.js').airWaysSearch;
+	collection.remove({_id: "airWaysSearch"}, function (err, nbOfDocs) {
+		collection.insert({_id: "airWaysSearch", value: airWaysSearch}, {serializeFunctions: true}, function (err, result) {
+			db.close();
+		});
+	});
+});
+
 function queryDb(res, coll) {
-	var MongoClient = require('mongodb').MongoClient;
-
-	MongoClient.connect('mongodb://127.0.0.1:27017/' + myDb, function(err, db) {
-		if(err) throw err;
-
+	db.open(function (err, db) {
+		assert.equal(null, err);
+		
 		var collection = db.collection(coll);
 		var query = require('./queries').query(coll);
 		var options = require('./queries').options;
@@ -50,57 +57,13 @@ setInterval(function() {
 	});
 },2500);
 
-function sendPoints(res) {
-	var pointsToSend = JSON.parse(Points);
-	pointsToSend.limit = require('./queries').options.limit;
-	res.end(JSON.stringify(pointsToSend));
-}
-
-function queryFlightRadar(res) {
-	var myReq = http.get(pointsSourceURL, function(myRes) {
-		var bodyChunks = [];
-		myRes.on('data', function(chunk) {
-			bodyChunks.push(chunk);
-		}).on('end', function() {
-			var body = Buffer.concat(bodyChunks).toString();
-			var newPoints = {};
-			try {newPoints = JSON.parse(body.substring(12,body.length-2));}
-			catch (e) {console.log("Erreur de parsing.");}
-			
-			var response = [];
-			var count = 0;
-			var limit = require('./queries').liveFilter;
-			for (var key in newPoints) {
-				if (key != "version" && key != "full_count" && count < limit) {
-					var point = {
-						"type": "Point",
-						"coordinates": [
-							newPoints[key][2], // Lon
-							newPoints[key][1]  // Lat
-						],
-						"name": key
-					};
-					response.push(point);
-					count++;
-				} else {break;}
-			}
-			res.end(JSON.stringify(response));
-		})
-	});
-
-	myReq.on('error', function(e) {
-		console.log(e.message);
-	});
-}
-
 var app = connect()
 	.use(connect.static(__dirname))
 	.use(function(req, res){
 		var page = url.parse(req.url).pathname;
 		var cmd = page.substring(1, page.length);
 		if (cmd == "livePts") {
-			//queryFlightRadar(res);
-			sendPoints(res);
+			res.end(Points);
 		} else {
 			queryDb(res, cmd);
 		}
