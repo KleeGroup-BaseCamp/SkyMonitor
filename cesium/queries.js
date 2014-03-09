@@ -1,3 +1,7 @@
+/*
+ * 
+ */
+
 exports.query = function(coll) {
 	if (coll == "points") {
 		return {
@@ -10,10 +14,10 @@ exports.query = function(coll) {
 		return {$where: "typeof this.Geometry != Array"};
 	}
 	else if (coll == "airWays") {
-		return {};
+		return {$where: "rechercheRoute(this)"};
 	}
 };
 
 exports.liveFilter = 20;
 
-exports.options = {limit: 1000};
+exports.options = {};

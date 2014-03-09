@@ -80,10 +80,13 @@ function display(type, objectString) {
 			var legs = geometriesArray[key].Legs;
 			for (var legKey in legs) {
 				var dataSource = new Cesium.GeoJsonDataSource();
-				try {
-					dataSource.load(legs[legKey].Line);
+				var line = legs[legKey].Line;
+				var x = line.coordinates[0][0];
+				var y = line.coordinates[0][1];
+				if (x > -4.8 && x < 8.3 && y > 42.2 && y < 51.1) {
+					try {dataSource.load(line);}
+					catch (e) {console.log(e.message);}
 				}
-				catch (e) {console.log(e.message);}
 				viewer.dataSources.add(dataSource);
 			}
 		}

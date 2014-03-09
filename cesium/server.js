@@ -5,9 +5,10 @@ var pointsSourceURL = {
 	host: 'db.flightradar24.com',
 	path: '/zones/full_all.js'
 };
+var myDb = "db";
 
 /*
- * Ajout d'une méthode setInterval qui stocke toutes les 1500 ms le contenu de full_all.js dans la string Points.
+ * Ajout d'une méthode setInterval qui stocke toutes les 2500 ms le contenu de full_all.js dans la string Points.
  * À la requête HTTP de body.js, la méthode sendPoints l'envoie telle quelle et le traitement des recoupements se fait dans body.js
  * (cf. commentaires dans body.js pour les points à régler).
  */
@@ -15,10 +16,9 @@ var pointsSourceURL = {
 var Points = "";
 
 function queryDb(res, coll) {
-	var MongoClient = require('mongodb').MongoClient
-		, format = require('util').format;
+	var MongoClient = require('mongodb').MongoClient;
 
-	MongoClient.connect('mongodb://127.0.0.1:27017/db', function(err, db) {
+	MongoClient.connect('mongodb://127.0.0.1:27017/' + myDb, function(err, db) {
 		if(err) throw err;
 
 		var collection = db.collection(coll);
