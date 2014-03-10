@@ -8,33 +8,16 @@ var primitives = scene.primitives;
 var centralBody = primitives.centralBody;
 
 var billboards = new Cesium.BillboardCollection();
+var zones = new Cesium.Primitive();
 
 var liveTracking = "false";
 var points = false;
 var zones = false;
 var routes = false;
 
-var cesiumTerrainProvider = new Cesium.CesiumTerrainProvider({
-	url : 'http://cesiumjs.org/smallterrain',
-	credit : 'Terrain data courtesy Analytical Graphics, Inc.'
-});
-
-var ellipsoidProvider = new Cesium.EllipsoidTerrainProvider();
-
-var vrTheWorldProvider = new Cesium.VRTheWorldTerrainProvider({
-	url : 'http://www.vr-theworld.com/vr-theworld/tiles1.0.0/73/',
-	credit : 'Terrain data courtesy VT MÄK'
-});
-
-var terrainProviders = [
-	{ name : 'Flat', provider : ellipsoidProvider },
-	{ name : 'VRTheWorldTerrainProvider', provider : vrTheWorldProvider },
-	{ name : 'CesiumTerrainProvider', provider : cesiumTerrainProvider }
-];
-
-centralBody.terrainProvider = ellipsoidProvider; // Default terrainProvider
-
-createTerrainMenu(terrainProviders);
+/*
+ * setInterval asks nodejs for live input : (string)Points in server.js
+ */
 
 setInterval(function(){
 	if (liveTracking == "true") {
@@ -44,7 +27,7 @@ setInterval(function(){
 			xhr_object = new XMLHttpRequest(); 
 		else if(window.ActiveXObject) // Internet Explorer 
 			xhr_object = new ActiveXObject("Microsoft.XMLHTTP"); 
-		else { // XMLHttpRequest non supporté par le navigateur 
+		else {
 			alert("Votre navigateur ne supporte pas les objets XMLHTTPRequest..."); 
 			return; 
 		}
@@ -61,6 +44,11 @@ setInterval(function(){
 	}
 }, 5000);
 
+/*
+ * request is called by the toolBarButtons and asks nodejs for objects in MongoDB
+ * argument (string) <type> is the name of the MongoDB collection
+ */
+
 function request(type) {
 	var xhr_object = null; 
 
@@ -68,7 +56,7 @@ function request(type) {
 		xhr_object = new XMLHttpRequest(); 
 	else if(window.ActiveXObject) // Internet Explorer 
 		xhr_object = new ActiveXObject("Microsoft.XMLHTTP"); 
-	else { // XMLHttpRequest non supporté par le navigateur 
+	else {
 		alert("Votre navigateur ne supporte pas les objets XMLHTTPRequest..."); 
 		return; 
 	} 
@@ -84,6 +72,10 @@ function request(type) {
 	xhr_object.send(null); 
 }
 
+/*
+ * TOOLBAR BUTTONS
+ */
+
 Sandcastle.addToolbarButton('myPoints', function() {
 	if (!points) {
 		request("points");
@@ -98,7 +90,7 @@ Sandcastle.addToolbarButton('myZones', function() {
 	if (!zones) {
 		request("zones");
 	} else {
-		viewer.dataSources.removeAll();
+		primitives.remove(zones);
 	}
 	zones = !zones;
 });
@@ -125,5 +117,53 @@ Sandcastle.addToolbarButton('liveTracking', function() {
 		billboards.removeAll();
 	}
 });
+
+	/*
+	 * Terrain Button
+	 */
+
+var cesiumTerrainProvider = new Cesium.CesiumTerrainProvider({
+	url : 'http://cesiumjs.org/smallterrain',
+	credit : 'Terrain data courtesy Analytical Graphics, Inc.'
+});
+
+var ellipsoidProvider = new Cesium.EllipsoidTerrainProvider();
+
+var vrTheWorldProvider = new Cesium.VRTheWorldTerrainProvider({
+	url : 'http://www.vr-theworld.com/vr-theworld/tiles1.0.0/73/',
+	credit : 'Terrain data courtesy VT MÄK'
+});
+
+var terrainProviders = [
+	{ name : 'Flat', provider : ellipsoidProvider },
+	{ name : 'VRTheWorldTerrainProvider', provider : vrTheWorldProvider },
+	{ name : 'CesiumTerrainProvider', provider : cesiumTerrainProvider }
+];
+
+centralBody.terrainProvider = ellipsoidProvider; // Default terrainProvider
+
+createTerrainMenu(terrainProviders);
+
+	/*
+	 * AltitudeRation button.
+	 * Default = 1, sets the ratio that multiplies every altitude for better visualization
+	 */
+
+var altitudeRatio = 1; // Default
+
+var altitudes = [
+	{name: 'Real Altitude', ratio: 1},
+	{name: 'x10', ratio: 10}
+]
+
+var altitudeOptions = altitudes.map(function(altitude) {
+	return {
+		text : altitude.name
+	};
+});
+
+Sandcastle.addToolbarMenu(altitudeOptions, function() {
+	altitudeRatio = altitudes[this.selectedIndex].ratio;
+}, 'terrainMenu');
 
 Sandcastle.finishedLoading();

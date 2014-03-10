@@ -1,3 +1,12 @@
+function zonesColors(type) {
+	var result;
+	switch (type) {
+		default:
+			result = Cesium.ColorGeometryInstanceAttribute.fromColor(new Cesium.Color(0,1,0,0.4));
+	}
+	return result;
+}
+
 function createTerrainMenu(terrainProviders) {
         var terrainProviderOptions = terrainProviders.map(function(terrainProvider) {
             return {
@@ -6,19 +15,22 @@ function createTerrainMenu(terrainProviders) {
         });
 
         Sandcastle.addToolbarMenu(terrainProviderOptions, function() {
+			if (altitudeRatio == 10) {
+				alert("Attention! Vous êtes en mode altitudes x10 !");
+			}
             centralBody.terrainProvider = terrainProviders[this.selectedIndex].provider;
         }, 'terrainMenu');
 }
 
-function cloneBillboardCollection(origin) {
+function cloneCollection(origin) {
 	var buffer = new Cesium.CompositePrimitive();
 	buffer.add(origin);
 	var copy = buffer.get(origin);
 	return copy;
 }
 
-function removeWithoutDestroying(CompositePrimitive, BillboardCollection) {
-	var buffer = cloneBillboardCollection(BillboardCollection);
+function removeWithoutDestroying(CompositePrimitive, Collection) {
+	var buffer = cloneCollection(Collection);
 	CompositePrimitive.remove(buffer);
 }
 
@@ -43,9 +55,9 @@ function addPlanesToPrimitives(collection, type) {
 			billboards.add({
 				imageIndex: 0,
 				position: ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(
-					collection[key][B],						//Lon
-					collection[key][A],						//Lat
-					collection[key][D]*0.3048/errorFactor	//Alt
+					collection[key][B],									//Lon
+					collection[key][A],									//Lat
+					collection[key][D]*altitudeRatio*0.3048/errorFactor	//Alt
 				)),
 				rotation: -Cesium.Math.toRadians(collection[key][C]),
 				alignedAxis: Cesium.Cartesian3.UNIT_Z
@@ -110,21 +122,22 @@ function display(type, objectString) {
 					geometry: Cesium.PolygonGeometry.fromPositions({
 						positions: positions,
 						vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
-						extrudedHeight: geometriesArray[key].Ceiling,
-						height: Cesium.Math.sign(geometriesArray[key].Floor)*geometriesArray[key].Floor
+						extrudedHeight: geometriesArray[key].Ceiling*altitudeRatio,
+						height: Cesium.Math.sign(geometriesArray[key].Floor)*geometriesArray[key].Floor*altitudeRatio
 					}),
 					attributes: {
-						color: Cesium.ColorGeometryInstanceAttribute.fromColor(new Cesium.Color(0,1,0,0.4))
+						color: zonesColors(geometriesArray[key].Type)
 					}
 				});
 				zoneInstances.push(zoneInstance);
 			}
 		}
-		primitives.add(new Cesium.Primitive({
+		zones = new Cesium.Primitive({
 			geometryInstances : zoneInstances,
 			appearance : new Cesium.PerInstanceColorAppearance({
 				closed : true
 			})
-		}));
+		});
+		primitives.add(zones);
 	}
 }
