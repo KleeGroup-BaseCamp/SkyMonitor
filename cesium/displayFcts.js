@@ -83,24 +83,48 @@ function display(type, objectString) {
 				var line = legs[legKey].Line;
 				var x = line.coordinates[0][0];
 				var y = line.coordinates[0][1];
-				if (x > -4.8 && x < 8.3 && y > 42.2 && y < 51.1) {
-					try {dataSource.load(line);}
-					catch (e) {console.log(e.message);}
-				}
+				try {dataSource.load(line);}
+				catch (e) {console.log(e.message);}
+
 				viewer.dataSources.add(dataSource);
 			}
 		}
 	} else {
+		var zoneInstances = [];
 		for (var key in geometriesArray) {
 			var testZoneValidity = false;
 			try {testZoneValidity = (geometriesArray[key].Geometry.coordinates[0].length > 3);}
-			catch (e) {console.log("There are invalid zone geometries!");}
+			catch (e) {console.log("There are invalid geometries!");}
 			if (testZoneValidity) {
-				var dataSource = new Cesium.GeoJsonDataSource();
-				try {dataSource.load(geometriesArray[key].Geometry);}
-				catch (e) {console.log("There are invalid zone geometries!");}
-				viewer.dataSources.add(dataSource);
+				var degreesPositions = geometriesArray[key].Geometry.coordinates[0];
+				var cartographicPositions = [];
+				for (var i = 0; i < degreesPositions.length; i++) {
+					cartographicPositions.push(Cesium.Cartographic.fromDegrees(
+						degreesPositions[i][0],
+						degreesPositions[i][1]
+					));
+				}
+				var positions = ellipsoid.cartographicArrayToCartesianArray(cartographicPositions);
+				
+				var zoneInstance = new Cesium.GeometryInstance({
+					geometry: Cesium.PolygonGeometry.fromPositions({
+						positions: positions,
+						vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
+						extrudedHeight: geometriesArray[key].Ceiling,
+						height: Cesium.Math.sign(geometriesArray[key].Floor)*geometriesArray[key].Floor
+					}),
+					attributes: {
+						color: Cesium.ColorGeometryInstanceAttribute.fromColor(new Cesium.Color(0,1,0,0.4))
+					}
+				});
+				zoneInstances.push(zoneInstance);
 			}
 		}
+		primitives.add(new Cesium.Primitive({
+			geometryInstances : zoneInstances,
+			appearance : new Cesium.PerInstanceColorAppearance({
+				closed : true
+			})
+		}));
 	}
 }

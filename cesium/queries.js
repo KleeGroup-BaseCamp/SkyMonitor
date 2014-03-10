@@ -7,7 +7,7 @@ exports.query = function(coll) {
 		};
 	}
 	else if (coll == "zones") {
-		return {$where: "typeof this.Geometry != Array"};
+		return {$where: "typeof this.Geometry != Array", Nom: /paris/i, Ceiling: {$lt: 10000}};
 	}
 	else if (coll == "airWays") {
 		return {$where: "airWaysSearch(this)"};
@@ -26,4 +26,4 @@ exports.airWaysSearch = function(route) {
 	return result;
 }
 
-exports.options = {};
+exports.options = {limit: 100};
