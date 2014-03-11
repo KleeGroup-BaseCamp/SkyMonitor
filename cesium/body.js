@@ -8,7 +8,8 @@ var primitives = scene.primitives;
 var centralBody = primitives.centralBody;
 
 var billboards = new Cesium.BillboardCollection();
-var zones = new Cesium.Primitive();
+primitives.add(billboards);
+var zonesPrimitive = new Cesium.Primitive();
 
 var liveTracking = "false";
 var points = false;
@@ -80,7 +81,6 @@ Sandcastle.addToolbarButton('myPoints', function() {
 	if (!points) {
 		request("points");
 	} else {
-		removeWithoutDestroying(primitives,billboards);
 		billboards.removeAll();
 	}
 	points = !points;
@@ -90,7 +90,7 @@ Sandcastle.addToolbarButton('myZones', function() {
 	if (!zones) {
 		request("zones");
 	} else {
-		primitives.remove(zones);
+		primitives.remove(zonesPrimitive);
 	}
 	zones = !zones;
 });
@@ -113,7 +113,6 @@ Sandcastle.addToolbarButton('liveTracking', function() {
 	}
 	else { //liveTracking == "stopped"
 		liveTracking = "false";
-		removeWithoutDestroying(primitives,billboards);
 		billboards.removeAll();
 	}
 });
@@ -165,5 +164,20 @@ var altitudeOptions = altitudes.map(function(altitude) {
 Sandcastle.addToolbarMenu(altitudeOptions, function() {
 	altitudeRatio = altitudes[this.selectedIndex].ratio;
 }, 'terrainMenu');
+
+var labels = new Cesium.LabelCollection();
+var label = labels.add();
+primitives.add(labels);
+
+viewer.screenSpaceEventHandler.setInputAction(function(movement) {
+	var pickedObject = scene.pick(movement.endPosition);
+	if (Cesium.defined(pickedObject)) {
+		label.setText(pickedObject.primitive.geometryInstances[0].id.Name);
+		var cartesian = scene.camera.controller.pickEllipsoid(movement.endPosition, ellipsoid);
+		label.setPosition(cartesian);
+	} else {
+		label.setText('');
+	}
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
 Sandcastle.finishedLoading();

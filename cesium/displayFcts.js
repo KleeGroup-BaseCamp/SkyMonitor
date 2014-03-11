@@ -22,18 +22,6 @@ function createTerrainMenu(terrainProviders) {
         }, 'terrainMenu');
 }
 
-function cloneCollection(origin) {
-	var buffer = new Cesium.CompositePrimitive();
-	buffer.add(origin);
-	var copy = buffer.get(origin);
-	return copy;
-}
-
-function removeWithoutDestroying(CompositePrimitive, Collection) {
-	var buffer = cloneCollection(Collection);
-	CompositePrimitive.remove(buffer);
-}
-
 function addPlanesToPrimitives(collection, type) {
 	var image = new Image();
 	image.onload = function() {
@@ -63,22 +51,18 @@ function addPlanesToPrimitives(collection, type) {
 				alignedAxis: Cesium.Cartesian3.UNIT_Z
 			});
 		}
-		primitives.add(billboards);
 	}
 	image.src = './plane.gif';
 }
 
-function displayWithBillboard(newPoints) {
-	removeWithoutDestroying(primitives,billboards);
-	addPlanesToPrimitives(newPoints, "live");
-}
-
 function displayLive(objectString) {
-	var newPoints = JSON.parse(objectString);
+	try {
+		var newPoints = JSON.parse(objectString);
+	} catch (e) {console.log(e.message);}
 	delete newPoints.version;
 	delete newPoints.full_count;
 	
-	displayWithBillboard(newPoints);
+	addPlanesToPrimitives(newPoints, "live");
 }
 
 function display(type, objectString) {
@@ -127,17 +111,21 @@ function display(type, objectString) {
 					}),
 					attributes: {
 						color: zonesColors(geometriesArray[key].Type)
+					},
+					id: {
+						Name: geometriesArray[key].Nom
 					}
 				});
 				zoneInstances.push(zoneInstance);
 			}
 		}
-		zones = new Cesium.Primitive({
+		zonesPrimitive = new Cesium.Primitive({
 			geometryInstances : zoneInstances,
 			appearance : new Cesium.PerInstanceColorAppearance({
 				closed : true
-			})
+			}),
+			releaseGeometryInstances: false // Keeps reference to geometryInstances for picking
 		});
-		primitives.add(zones);
+		primitives.add(zonesPrimitive);
 	}
 }
