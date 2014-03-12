@@ -9,7 +9,7 @@ var centralBody = primitives.centralBody;
 
 var billboards = new Cesium.BillboardCollection();
 primitives.add(billboards);
-var zonesPrimitive = new Cesium.Primitive();
+var zonePrimitives = [];
 
 var liveTracking = "false";
 var points = false;
@@ -90,7 +90,10 @@ Sandcastle.addToolbarButton('myZones', function() {
 	if (!zones) {
 		request("zones");
 	} else {
-		primitives.remove(zonesPrimitive);
+		for (var key in zonePrimitives) {
+			primitives.remove(zonePrimitives[key]);
+		}
+		zonePrimitives = [];
 	}
 	zones = !zones;
 });
@@ -169,10 +172,17 @@ var labels = new Cesium.LabelCollection();
 var label = labels.add();
 primitives.add(labels);
 
+/*
+ * LABELS on MouseOver
+ */
+
 viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 	var pickedObject = scene.pick(movement.endPosition);
 	if (Cesium.defined(pickedObject)) {
-		label.setText(pickedObject.primitive.geometryInstances[0].id.Name);
+		label.setText(
+			pickedObject.primitive.geometryInstances.id.Name + " - " +
+			pickedObject.primitive.geometryInstances.id.Type
+		);
 		var cartesian = scene.camera.controller.pickEllipsoid(movement.endPosition, ellipsoid);
 		label.setPosition(cartesian);
 	} else {

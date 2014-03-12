@@ -1,8 +1,33 @@
+function modifyAlpha(color, alpha) {
+	return new Cesium.Color(color.red, color.green, color.blue, alpha);
+}
+
 function zonesColors(type) {
 	var result;
 	switch (type) {
+		case 'Q': // Danger
+			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.RED, 0.2));
+			break;
+		case 'P': // Prohibited
+			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.RED, 0.4));
+			break;
+		case 'R': // Restricted
+			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.RED, 0.4));
+			break;
+		case 'A':
+			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.DARKORCHID, 0.2));
+			break;
+		case 'C':
+			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.DODGERBLUE, 0.4));
+			break;
+		case 'D':
+			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.DODGERBLUE, 0.4));
+			break;
+		case 'E':
+			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.DODGERBLUE, 0.2));
+			break;
 		default:
-			result = Cesium.ColorGeometryInstanceAttribute.fromColor(new Cesium.Color(0,1,0,0.4));
+			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.GREEN, 0.4));
 	}
 	return result;
 }
@@ -113,19 +138,20 @@ function display(type, objectString) {
 						color: zonesColors(geometriesArray[key].Type)
 					},
 					id: {
-						Name: geometriesArray[key].Nom
+						Name: geometriesArray[key].Nom,
+						Type: geometriesArray[key].Type
 					}
 				});
-				zoneInstances.push(zoneInstance);
+				zonePrimitive = new Cesium.Primitive({
+					geometryInstances : zoneInstance,
+					appearance : new Cesium.PerInstanceColorAppearance({
+						closed : true
+					}),
+					releaseGeometryInstances: false // Keeps reference to geometryInstances for picking
+				});
+				primitives.add(zonePrimitive);
+				zonePrimitives.push(zonePrimitive);
 			}
 		}
-		zonesPrimitive = new Cesium.Primitive({
-			geometryInstances : zoneInstances,
-			appearance : new Cesium.PerInstanceColorAppearance({
-				closed : true
-			}),
-			releaseGeometryInstances: false // Keeps reference to geometryInstances for picking
-		});
-		primitives.add(zonesPrimitive);
 	}
 }
