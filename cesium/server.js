@@ -26,12 +26,13 @@ db.open(function (err, db) {
 
 function queryDb(res, coll) {
 	db.open(function (err, db) {
-		assert.equal(null, err);
-
+		try {assert.equal(null, err);}
+		catch (e) {console.log(err);}
+		
 		var collection = db.collection(coll);
-		var query = require('./queries').query(coll);
-		var options = require('./queries').options;
-
+		var query = require('./queries.js').query(coll);
+		var options = require('./queries.js').options;
+		
 		collection.find(query, options).toArray(function(err, results) {
 			db.close();
 			res.end(JSON.stringify(results));
@@ -61,8 +62,8 @@ var app = connect()
 	.use(connect.static(__dirname))
 	.use(function(req, res){
 		var page = url.parse(req.url).pathname;
+		console.log(page);
 		var cmd = page.substring(1, page.length);
-		console.log(cmd);
 		if (cmd == "livePts") {
 			res.end(Points);
 		} else {
