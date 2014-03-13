@@ -64,9 +64,9 @@ var app = connect()
 		var cmd = page.substring(1, page.length);
 		if (cmd == "livePts") {
 			res.end(Points);
-		} else {
+		} else if (cmd == "airWays" || cmd == "points" || cmd == "zones") {
 			queryDb(res, cmd);
 		}
 	})
 
-http.createServer(app).listen(200);
+http.createServer(app).listen(1337);
