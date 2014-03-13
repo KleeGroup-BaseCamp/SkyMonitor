@@ -14,7 +14,7 @@ cesium/Build/*
 cesium/node_modules/*
 cesium/Source/*
 cesium/Specs/*
-cesium/thirdParty/*
+cesium/ThirdParty/*
 cesium/CHANGES.md
 cesium/LICENSE.md
 cesium/README.md

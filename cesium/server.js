@@ -27,11 +27,11 @@ db.open(function (err, db) {
 function queryDb(res, coll) {
 	db.open(function (err, db) {
 		assert.equal(null, err);
-		
+
 		var collection = db.collection(coll);
 		var query = require('./queries').query(coll);
 		var options = require('./queries').options;
-		
+
 		collection.find(query, options).toArray(function(err, results) {
 			db.close();
 			res.end(JSON.stringify(results));
@@ -62,9 +62,10 @@ var app = connect()
 	.use(function(req, res){
 		var page = url.parse(req.url).pathname;
 		var cmd = page.substring(1, page.length);
+		console.log(cmd);
 		if (cmd == "livePts") {
 			res.end(Points);
-		} else if (cmd == "airWays" || cmd == "points" || cmd == "zones") {
+		} else {
 			queryDb(res, cmd);
 		}
 	})
