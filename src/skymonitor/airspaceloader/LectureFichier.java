@@ -5,7 +5,6 @@ import java.io.*;
 import com.mongodb.*;
 
 import java.util.List;
-import java.util.LinkedList;
 
 import javax.servlet.http.*;
 
@@ -24,13 +23,13 @@ public class LectureFichier {
 
 		occ.removeField("Vpoint");
 		occ.removeField("Vdir");
-		occ.put("Country", country);
+		occ.put("Ctry", country);
 		coll.insert(occ);
 	}
 	
 	public static void main(String[] args) {
 		String fichier = "../sourceOpenAir.txt";
-		country = "Fr";
+		country = "UK";
 		try {
 			InputStream ips = new FileInputStream(fichier);
 			loadZones(ips, "localhost", "db");
@@ -104,7 +103,6 @@ public class LectureFichier {
 			occ.put("Starter", 0);
 
 			int lineNbr = 0;
-			List errorReport = new LinkedList();
 
 			while ((line = br.readLine()) != null) {
 				lineNbr++;
@@ -114,7 +112,9 @@ public class LectureFichier {
 						try {
 							poss.execute(Line, occ, zones);
 						} catch (Exception e) {
-							errorReport.add(lineNbr);
+							e.printStackTrace();
+							System.out.println(line);
+							System.out.println(lineNbr);
 						}
 					}
 				}
@@ -126,8 +126,6 @@ public class LectureFichier {
 			BasicDBObject Starter = new BasicDBObject();
 			Starter.put("Starter", 0);
 			zones.remove(Starter);
-
-			System.out.println(errorReport);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

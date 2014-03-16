@@ -58,9 +58,9 @@ function addPlanesToPrimitives(collection, type) {
 		billboards.textureAtlas = textureAtlas;
 		
 		var A, B, C, D, errorFactor; // errorFactor corrige Alt dans MongoDB
-		if (type == "live") {
+		if (type == "livePts") {
 			A = 1, B = 2, C = 3, D = 4, errorFactor = 1;
-		} else { // type == "database"
+		} else { // type == "points"
 			A = 'Lat', B = 'Lon', C = 'Hdg', D = 'Alt', errorFactor = 100;
 		}
 		
@@ -87,14 +87,14 @@ function displayLive(objectString) {
 	delete newPoints.version;
 	delete newPoints.full_count;
 	
-	addPlanesToPrimitives(newPoints, "live");
+	addPlanesToPrimitives(newPoints, "livePts");
 }
 
 function display(type, objectString) {
 	// (String)type is the name of MongoDB Collection
 	var geometriesArray = JSON.parse(objectString);
 	if (type == "points") {
-		addPlanesToPrimitives(geometriesArray, "database");
+		addPlanesToPrimitives(geometriesArray, type);
 	}
 	else if (type == "airWays") {
 		for (var key in geometriesArray) {
@@ -138,7 +138,7 @@ function display(type, objectString) {
 						color: zonesColors(geometriesArray[key].Type)
 					},
 					id: {
-						Name: geometriesArray[key].Nom,
+						Name: geometriesArray[key].Name,
 						Type: geometriesArray[key].Type
 					}
 				});

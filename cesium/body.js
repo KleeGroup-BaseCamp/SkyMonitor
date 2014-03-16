@@ -50,7 +50,7 @@ setInterval(function(){
  * argument (string) <type> is the name of the MongoDB collection
  */
 
-function request(type) {
+function request(type, options) {
 	var xhr_object = null; 
 
 	if(window.XMLHttpRequest) // Firefox 
@@ -60,9 +60,15 @@ function request(type) {
 	else {
 		alert("Votre navigateur ne supporte pas les objets XMLHTTPRequest..."); 
 		return; 
-	} 
-
-	xhr_object.open("GET", type, true); 
+	}
+	
+	var request = {
+		type: type,
+		options: options
+	}
+	var stringRequest = JSON.stringify(request);
+	
+	xhr_object.open("GET", stringRequest, true); 
 	
 	xhr_object.onreadystatechange = function() { 
 		if(xhr_object.readyState == 4) {
@@ -86,7 +92,7 @@ Sandcastle.addToolbarButton('myPoints', function() {
 	points = !points;
 });
 
-Sandcastle.addToolbarButton('myZones', function() {
+/*Sandcastle.addToolbarButton('myZones', function() {
 	if (!zones) {
 		request("zones");
 	} else {
@@ -96,7 +102,25 @@ Sandcastle.addToolbarButton('myZones', function() {
 		zonePrimitives = [];
 	}
 	zones = !zones;
-});
+});*/
+
+var field = document.createElement('input');
+field.setAttribute('type', 'text');
+field.setAttribute('id', "zones");
+field.setAttribute('value', "Ctry: Fr, UK, US");
+field.onkeypress = function() {
+	if (event.keyCode == 13) {
+		for (var key in zonePrimitives) {
+			primitives.remove(zonePrimitives[key]);
+		}
+		zonePrimitives = [];
+		var cmd = document.getElementById('zones').value;
+		if (cmd != "remove") {
+			request('zones',{Ctry:cmd});
+		}
+	}
+}
+document.getElementById('toolbar').appendChild(field);
 
 Sandcastle.addToolbarButton('myRoutes', function() {
 	if (!routes) {

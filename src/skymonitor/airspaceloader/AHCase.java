@@ -20,7 +20,7 @@ public class AHCase extends Case {
 				val = Double.parseDouble(chaine.replaceAll("[^0-9]", ""))*100;
 			}
 		}
-		else if (chaine.matches(".*FT.*")){
+		else if (chaine.matches(".*(FT|ALT).*")){
 			if (chaine.matches(".*AGL.*")) {
 				val = Double.parseDouble(chaine.replaceAll("[^0-9]", ""))*-1;
 			}

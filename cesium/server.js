@@ -4,6 +4,7 @@ var url = require('url');
 var Db = require('mongodb').Db;
 var Server = require('mongodb').Server;
 var assert = require('assert');
+var queries = require('./queries.js');
 var pointsSourceURL = {
 	host: 'db.flightradar24.com',
 	path: '/zones/full_all.js'
@@ -16,7 +17,7 @@ db.open(function (err, db) {
 	assert.equal(null, err);
 
 	var collection = db.collection('system.js');
-	var airWaysSearch = require('./queries.js').airWaysSearch;
+	var airWaysSearch = queries.airWaysSearch;
 	collection.remove({_id: "airWaysSearch"}, function (err, nbOfDocs) {
 		collection.insert({_id: "airWaysSearch", value: airWaysSearch}, {serializeFunctions: true}, function (err, result) {
 			db.close();
@@ -24,13 +25,18 @@ db.open(function (err, db) {
 	});
 });
 
-function queryDb(res, coll) {
+function queryDb(res, coll, cmdOptions) {
+	var mongoCmdOpts = queries.prepare(coll, cmdOptions);
+	
 	db.open(function (err, db) {
 		assert.equal(null, err);
-
+		
 		var collection = db.collection(coll);
-		var query = require('./queries').query(coll);
-		var options = require('./queries').options;
+		var query = queries.query(coll);
+		for (var key in mongoCmdOpts) {
+			query[key] = mongoCmdOpts[key];
+		}
+		var options = queries.options;
 
 		collection.find(query, options).toArray(function(err, results) {
 			db.close();
@@ -62,11 +68,12 @@ var app = connect()
 	.use(function(req, res){
 		var page = url.parse(req.url).pathname;
 		var cmd = page.substring(1, page.length);
-		console.log(cmd);
 		if (cmd == "livePts") {
 			res.end(Points);
 		} else {
-			queryDb(res, cmd);
+			var cmdModif = cmd.replace(/%7B/g,"{").replace(/%7D/g,"}").replace(/%22/g,"\u0022");
+			var cmdObj = JSON.parse(cmdModif);
+			queryDb(res, cmdObj.type, cmdObj.options);
 		}
 	})
 
