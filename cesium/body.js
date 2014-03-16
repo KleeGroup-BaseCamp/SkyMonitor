@@ -13,11 +13,10 @@ var zonePrimitives = [];
 
 var liveTracking = "false";
 var points = false;
-var zones = false;
 var routes = false;
 
 /*
- * setInterval asks nodejs for live input : (string)Points in server.js
+ * setInterval asks nodejs for live input: (string)Points in server.js
  */
 
 setInterval(function(){
@@ -92,18 +91,6 @@ Sandcastle.addToolbarButton('myPoints', function() {
 	points = !points;
 });
 
-/*Sandcastle.addToolbarButton('myZones', function() {
-	if (!zones) {
-		request("zones");
-	} else {
-		for (var key in zonePrimitives) {
-			primitives.remove(zonePrimitives[key]);
-		}
-		zonePrimitives = [];
-	}
-	zones = !zones;
-});*/
-
 var field = document.createElement('input');
 field.setAttribute('type', 'text');
 field.setAttribute('id', "zones");
@@ -171,7 +158,7 @@ centralBody.terrainProvider = ellipsoidProvider; // Default terrainProvider
 createTerrainMenu(terrainProviders);
 
 	/*
-	 * AltitudeRation button.
+	 * AltitudeRatio button.
 	 * Default = 1, sets the ratio that multiplies every altitude for better visualization
 	 */
 
@@ -192,21 +179,29 @@ Sandcastle.addToolbarMenu(altitudeOptions, function() {
 	altitudeRatio = altitudes[this.selectedIndex].ratio;
 }, 'terrainMenu');
 
-var labels = new Cesium.LabelCollection();
-var label = labels.add();
-primitives.add(labels);
-
 /*
  * LABELS on MouseOver
  */
 
+var labels = new Cesium.LabelCollection();
+var label = labels.add();
+primitives.add(labels);
+
 viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 	var pickedObject = scene.pick(movement.endPosition);
 	if (Cesium.defined(pickedObject)) {
-		label.setText(
-			pickedObject.primitive.geometryInstances.id.Name + " - " +
-			pickedObject.primitive.geometryInstances.id.Type
-		);
+		if (Cesium.defined(pickedObject.primitive.geometryInstances)) { // zone
+			label.setText(
+				pickedObject.primitive.geometryInstances.id.Name + " - " +
+				pickedObject.primitive.geometryInstances.id.Type
+			);
+		} else if (typeof pickedObject.primitive == typeof new Cesium.Billboard()) { // point
+			label.setText(
+				pickedObject.primitive.getId().Flight + " - " +
+				pickedObject.primitive.getId().From + " - " +
+				pickedObject.primitive.getId().To
+			);
+		}
 		var cartesian = scene.camera.controller.pickEllipsoid(movement.endPosition, ellipsoid);
 		label.setPosition(cartesian);
 	} else {

@@ -3,33 +3,24 @@ function modifyAlpha(color, alpha) {
 }
 
 function zonesColors(type) {
-	var result;
 	switch (type) {
 		case 'Q': // Danger
-			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.RED, 0.2));
-			break;
+			return Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.RED, 0.2));
 		case 'P': // Prohibited
-			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.RED, 0.4));
-			break;
+			return Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.RED, 0.4));
 		case 'R': // Restricted
-			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.RED, 0.4));
-			break;
+			return Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.RED, 0.4));
 		case 'A':
-			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.DARKORCHID, 0.2));
-			break;
+			return Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.DARKORCHID, 0.2));
 		case 'C':
-			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.DODGERBLUE, 0.4));
-			break;
+			return Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.DODGERBLUE, 0.4));
 		case 'D':
-			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.DODGERBLUE, 0.4));
-			break;
+			return Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.DODGERBLUE, 0.4));
 		case 'E':
-			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.DODGERBLUE, 0.2));
-			break;
+			return Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.DODGERBLUE, 0.2));
 		default:
-			result = Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.GREEN, 0.4));
+			return Cesium.ColorGeometryInstanceAttribute.fromColor(modifyAlpha(Cesium.Color.GREEN, 0.4));
 	}
-	return result;
 }
 
 function createTerrainMenu(terrainProviders) {
@@ -59,9 +50,9 @@ function addPlanesToPrimitives(collection, type) {
 		
 		var A, B, C, D, errorFactor; // errorFactor corrige Alt dans MongoDB
 		if (type == "livePts") {
-			A = 1, B = 2, C = 3, D = 4, errorFactor = 1;
+			A = 1, B = 2, C = 3, D = 4, E = 13, F = 11, G = 12, errorFactor = 1;
 		} else { // type == "points"
-			A = 'Lat', B = 'Lon', C = 'Hdg', D = 'Alt', errorFactor = 100;
+			A = 'Lat', B = 'Lon', C = 'Hdg', D = 'Alt', E = 'Flight', F = 'From', G = 'To', errorFactor = 100;
 		}
 		
 		for (var key in collection) {
@@ -73,7 +64,12 @@ function addPlanesToPrimitives(collection, type) {
 					collection[key][D]*altitudeRatio*0.3048/errorFactor	//Alt
 				)),
 				rotation: -Cesium.Math.toRadians(collection[key][C]),
-				alignedAxis: Cesium.Cartesian3.UNIT_Z
+				alignedAxis: Cesium.Cartesian3.UNIT_Z,
+				id: {
+					Flight: collection[key][E],
+					From: collection[key][F],
+					To: collection[key][G]
+				}
 			});
 		}
 	}
