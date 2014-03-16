@@ -180,8 +180,11 @@ Sandcastle.addToolbarMenu(altitudeOptions, function() {
 }, 'terrainMenu');
 
 /*
- * LABELS on MouseOver
- */
+ * EVENTS
+ *
+	 *
+	 * LABELS on MouseOver
+	 */
 
 var labels = new Cesium.LabelCollection();
 var label = labels.add();
@@ -208,5 +211,21 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 		label.setText('');
 	}
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+	/*
+	 * ACTIONS ON CLICK
+	 */
+
+viewer.screenSpaceEventHandler.setInputAction(function(movement) {
+	var pickedObject = scene.pick(movement.position);
+	if (Cesium.defined(pickedObject)
+		&& typeof pickedObject.primitive == typeof new Cesium.Billboard()) {
+		var flightNo = pickedObject.primitive.getId().Flight;
+		points = true;
+		liveTracking = "false";
+		billboards.removeAll();
+		request('points', {Flight: flightNo});
+	}
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 Sandcastle.finishedLoading();

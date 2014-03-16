@@ -1,10 +1,11 @@
 exports.query = function(coll) {
 	if (coll == "points") {
-		return {
+		/*return {
 			Lon: {'$gt': -4.8, '$lt': 8.3},
 			Lat: {'$gt': 42.2, '$lt': 51.1},
 			Alt: {'$gt': 0}
-		};
+		};*/
+		return {};
 	}
 	else if (coll == "zones") {
 		return {$where: "typeof this.Geometry != Array"};
@@ -26,6 +27,8 @@ exports.prepare = function(coll, cmdOptions) {
 				}
 				result.Ctry = {$in: optsArrayRegex};
 				break;
+			default:
+				result[key] = cmdOptions[key];
 		}
 	}
 	return result;
