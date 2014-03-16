@@ -9,6 +9,8 @@ var centralBody = primitives.centralBody;
 
 var billboards = new Cesium.BillboardCollection();
 primitives.add(billboards);
+var polylines = new Cesium.PolylineCollection();
+primitives.add(polylines);
 var zonePrimitives = [];
 
 var liveTracking = "false";
@@ -113,7 +115,7 @@ Sandcastle.addToolbarButton('myRoutes', function() {
 	if (!routes) {
 		request("airWays");
 	} else {
-		viewer.dataSources.removeAll();
+		polylines.removeAll();
 	}
 	routes = !routes;
 });
@@ -198,7 +200,7 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 				pickedObject.primitive.geometryInstances.id.Name + " - " +
 				pickedObject.primitive.geometryInstances.id.Type
 			);
-		} else if (typeof pickedObject.primitive == typeof new Cesium.Billboard()) { // point
+		} else if (Cesium.defined(pickedObject.primitive.getId().Flight)) { // point
 			label.setText(
 				pickedObject.primitive.getId().Flight + " - " +
 				pickedObject.primitive.getId().From + " - " +

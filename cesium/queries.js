@@ -44,4 +44,4 @@ exports.airWaysSearch = function(route) {
 	return false;
 }
 
-exports.options = {limit: 100};
+exports.options = {};

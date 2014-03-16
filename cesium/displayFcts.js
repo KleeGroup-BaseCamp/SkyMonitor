@@ -89,65 +89,71 @@ function displayLive(objectString) {
 function display(type, objectString) {
 	// (String)type is the name of MongoDB Collection
 	var geometriesArray = JSON.parse(objectString);
-	if (type == "points") {
-		addPlanesToPrimitives(geometriesArray, type);
-	}
-	else if (type == "airWays") {
-		for (var key in geometriesArray) {
-			var legs = geometriesArray[key].Legs;
-			for (var legKey in legs) {
-				var dataSource = new Cesium.GeoJsonDataSource();
-				var line = legs[legKey].Line;
-				var x = line.coordinates[0][0];
-				var y = line.coordinates[0][1];
-				try {dataSource.load(line);}
-				catch (e) {console.log(e.message);}
-
-				viewer.dataSources.add(dataSource);
-			}
-		}
-	} else {
-		var zoneInstances = [];
-		for (var key in geometriesArray) {
-			var testZoneValidity = false;
-			try {testZoneValidity = (geometriesArray[key].Geometry.coordinates[0].length > 3);}
-			catch (e) {console.log("There are invalid geometries!");}
-			if (testZoneValidity) {
-				var degreesPositions = geometriesArray[key].Geometry.coordinates[0];
-				var cartographicPositions = [];
-				for (var i = 0; i < degreesPositions.length; i++) {
-					cartographicPositions.push(Cesium.Cartographic.fromDegrees(
-						degreesPositions[i][0],
-						degreesPositions[i][1]
-					));
+	switch (type) {
+		case "points":
+			addPlanesToPrimitives(geometriesArray, type);
+			break;
+		case "airWays":
+			for (var key in geometriesArray) {
+				var legs = geometriesArray[key].Legs;
+				for (var legKey in legs) {
+					var coords = legs[legKey].Line.coordinates;
+					polylines.add({
+						positions: ellipsoid.cartographicArrayToCartesianArray([
+							Cesium.Cartographic.fromDegrees(coords[0][0], coords[0][1]),
+							Cesium.Cartographic.fromDegrees(coords[1][0], coords[1][1])
+						]),
+						material: Cesium.Material.fromType('Color', {
+							color : Cesium.Color.WHITE
+						}),
+						id: 0
+					});
 				}
-				var positions = ellipsoid.cartographicArrayToCartesianArray(cartographicPositions);
-				
-				var zoneInstance = new Cesium.GeometryInstance({
-					geometry: Cesium.PolygonGeometry.fromPositions({
-						positions: positions,
-						vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
-						extrudedHeight: geometriesArray[key].Ceiling*altitudeRatio,
-						height: Cesium.Math.sign(geometriesArray[key].Floor)*geometriesArray[key].Floor*altitudeRatio
-					}),
-					attributes: {
-						color: zonesColors(geometriesArray[key].Type)
-					},
-					id: {
-						Name: geometriesArray[key].Name,
-						Type: geometriesArray[key].Type
-					}
-				});
-				zonePrimitive = new Cesium.Primitive({
-					geometryInstances : zoneInstance,
-					appearance : new Cesium.PerInstanceColorAppearance({
-						closed : true
-					}),
-					releaseGeometryInstances: false // Keeps reference to geometryInstances for picking
-				});
-				primitives.add(zonePrimitive);
-				zonePrimitives.push(zonePrimitive);
 			}
-		}
+			break;
+		case "zones":
+			var zoneInstances = [];
+			for (var key in geometriesArray) {
+				var testZoneValidity = false;
+				try {testZoneValidity = (geometriesArray[key].Geometry.coordinates[0].length > 3);}
+				catch (e) {console.log("There are invalid geometries!");}
+				if (testZoneValidity) {
+					var degreesPositions = geometriesArray[key].Geometry.coordinates[0];
+					var cartographicPositions = [];
+					for (var i = 0; i < degreesPositions.length; i++) {
+						cartographicPositions.push(Cesium.Cartographic.fromDegrees(
+							degreesPositions[i][0],
+							degreesPositions[i][1]
+						));
+					}
+					var positions = ellipsoid.cartographicArrayToCartesianArray(cartographicPositions);
+					
+					var zoneInstance = new Cesium.GeometryInstance({
+						geometry: Cesium.PolygonGeometry.fromPositions({
+							positions: positions,
+							vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
+							extrudedHeight: geometriesArray[key].Ceiling*altitudeRatio,
+							height: Cesium.Math.sign(geometriesArray[key].Floor)*geometriesArray[key].Floor*altitudeRatio
+						}),
+						attributes: {
+							color: zonesColors(geometriesArray[key].Type)
+						},
+						id: {
+							Name: geometriesArray[key].Name,
+							Type: geometriesArray[key].Type
+						}
+					});
+					zonePrimitive = new Cesium.Primitive({
+						geometryInstances : zoneInstance,
+						appearance : new Cesium.PerInstanceColorAppearance({
+							closed : true
+						}),
+						releaseGeometryInstances: false // Keeps reference to geometryInstances for picking
+					});
+					primitives.add(zonePrimitive);
+					zonePrimitives.push(zonePrimitive);
+				}
+			}
+			break;
 	}
 }
