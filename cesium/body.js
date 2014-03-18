@@ -206,6 +206,8 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 				pickedObject.primitive.getId().From + " - " +
 				pickedObject.primitive.getId().To
 			);
+		} else if (Cesium.defined(pickedObject.primitive.getId().Type) && pickedObject.primitive.getId().Type == "airWay") {
+			label.setText(pickedObject.primitive.getId().Ident);
 		}
 		var cartesian = scene.camera.controller.pickEllipsoid(movement.endPosition, ellipsoid);
 		label.setPosition(cartesian);
@@ -220,13 +222,25 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 
 viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 	var pickedObject = scene.pick(movement.position);
-	if (Cesium.defined(pickedObject)
-		&& typeof pickedObject.primitive == typeof new Cesium.Billboard()) {
-		var flightNo = pickedObject.primitive.getId().Flight;
-		points = true;
-		liveTracking = "false";
-		billboards.removeAll();
-		request('points', {Flight: flightNo});
+	if (Cesium.defined(pickedObject)) {
+		if (Cesium.defined(pickedObject.primitive.getId().Flight)) {
+			var flightNo = pickedObject.primitive.getId().Flight;
+			points = true;
+			liveTracking = "false";
+			billboards.removeAll();
+			request('points', {Flight: flightNo});
+		}
+		else if (pickedObject.primitive.getId().Type == "airWay") {
+			var route = [];
+			var i = 0;
+			while (i < polylines.length) {
+				var leg = polylines.get(i);
+				if (leg.getId().Ident != pickedObject.primitive.getId().Ident) {
+					polylines.remove(leg);
+				}
+				else {i++;}
+			}
+		}
 	}
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 

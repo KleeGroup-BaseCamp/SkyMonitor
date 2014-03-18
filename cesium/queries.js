@@ -1,6 +1,6 @@
 exports.query = function(coll) {
 	if (coll == "points") {
-		/*return {
+		/*return { // France
 			Lon: {'$gt': -4.8, '$lt': 8.3},
 			Lat: {'$gt': 42.2, '$lt': 51.1},
 			Alt: {'$gt': 0}
@@ -44,4 +44,4 @@ exports.airWaysSearch = function(route) {
 	return false;
 }
 
-exports.options = {};
+exports.options = {limit: 10000};

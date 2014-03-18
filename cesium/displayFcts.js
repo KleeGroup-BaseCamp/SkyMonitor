@@ -106,7 +106,10 @@ function display(type, objectString) {
 						material: Cesium.Material.fromType('Color', {
 							color : Cesium.Color.WHITE
 						}),
-						id: 0
+						id: {
+							Ident: geometriesArray[key].Ident,
+							Type: "airWay"
+						}
 					});
 				}
 			}
