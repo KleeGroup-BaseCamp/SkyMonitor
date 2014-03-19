@@ -50,9 +50,10 @@ function addPlanesToPrimitives(collection, type) {
 		
 		var A, B, C, D, errorFactor; // errorFactor corrige Alt dans MongoDB
 		if (type == "livePts") {
-			A = 1, B = 2, C = 3, D = 4, E = 13, F = 11, G = 12, errorFactor = 1;
+			A = 1, B = 2, C = 3, D = 4, E = 13, F = 11, G = 12, H = 7, errorFactor = 1;
 		} else { // type == "points"
-			A = 'Lat', B = 'Lon', C = 'Hdg', D = 'Alt', E = 'Flight', F = 'From', G = 'To', errorFactor = 100;
+			A = 'Lat', B = 'Lon', C = 'Hdg', D = 'Alt', E = 'Flight', F = 'From', G = 'To',
+			H = 'Rdr', errorFactor = 100;
 		}
 		
 		for (var key in collection) {
@@ -68,7 +69,8 @@ function addPlanesToPrimitives(collection, type) {
 				id: {
 					Flight: collection[key][E],
 					From: collection[key][F],
-					To: collection[key][G]
+					To: collection[key][G],
+					Rdr: collection[key][H]
 				}
 			});
 		}

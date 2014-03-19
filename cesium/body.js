@@ -16,6 +16,7 @@ var zonePrimitives = [];
 var liveTracking = "false";
 var points = false;
 var routes = false;
+var radarCov = false;
 
 /*
  * setInterval asks nodejs for live input: (string)Points in server.js
@@ -133,6 +134,39 @@ Sandcastle.addToolbarButton('liveTracking', function() {
 	}
 });
 
+Sandcastle.addToolbarButton('radarCov', function() {
+	if (!radarCov) {
+		var colors = {}
+		for (var i = 0; i < billboards.length; i++) {
+			var point = billboards.get(i);
+			try {
+				var color = colors[point.getId().Rdr];
+				point.setColor({
+					red: color.red,
+					green: color.green,
+					blue: color.blue,
+					alpha: 1
+				});	
+			} catch (e) {
+				var newColor = new Cesium.Color();
+				Cesium.Color.fromRandom({alpha:1}, newColor);
+				point.setColor({
+					red: newColor.red,
+					green: newColor.green,
+					blue: newColor.blue,
+					alpha: 1
+				});
+				colors[point.getId().Rdr] = newColor;
+			}
+		}
+	} else {
+		for (var i = 0; i < billboards.length; i++) {
+			billboards.get(i).setColor({red: 1, green: 1, blue: 1, alpha: 1});
+		}
+	}
+	radarCov = !radarCov;
+});
+
 	/*
 	 * Terrain Button
 	 */
@@ -204,7 +238,8 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 			label.setText(
 				pickedObject.primitive.getId().Flight + " - " +
 				pickedObject.primitive.getId().From + " - " +
-				pickedObject.primitive.getId().To
+				pickedObject.primitive.getId().To + " - " +
+				pickedObject.primitive.getId().Rdr
 			);
 		} else if (Cesium.defined(pickedObject.primitive.getId().Type) && pickedObject.primitive.getId().Type == "airWay") {
 			label.setText(pickedObject.primitive.getId().Ident);
