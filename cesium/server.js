@@ -12,6 +12,7 @@ var pointsSourceURL = {
 var db = new Db('db', new Server('localhost', 27017), {safe: false});
 
 var Points = "";
+var liveTracking = false;
 
 db.open(function (err, db) {
 	assert.equal(null, err);
@@ -45,22 +46,24 @@ function queryDb(res, coll, cmdOptions) {
 	});
 }
 
-setInterval(function() {	
-	var myReq = http.get(pointsSourceURL, function(myRes) {
-		var bodyChunks = [];
-		myRes.on('data', function(chunk) {
-			bodyChunks.push(chunk);
-		}).on('end', function() {
-			var body = Buffer.concat(bodyChunks).toString();
-			var regExp = /pd_callback.*/;
-			var pd_callback = regExp.exec(body)[0];
-			Points = pd_callback.substring(12,pd_callback.length-2);
+setInterval(function() {
+	if (liveTracking) {
+		var myReq = http.get(pointsSourceURL, function(myRes) {
+			var bodyChunks = [];
+			myRes.on('data', function(chunk) {
+				bodyChunks.push(chunk);
+			}).on('end', function() {
+				var body = Buffer.concat(bodyChunks).toString();
+				var regExp = /pd_callback.*/;
+				var pd_callback = regExp.exec(body)[0];
+				Points = pd_callback.substring(12,pd_callback.length-2);
+			});
 		});
-	});
 
-	myReq.on('error', function(e) {
-		console.log(e.message);
-	});
+		myReq.on('error', function(e) {
+			console.log(e.message);
+		});
+	}
 },2500);
 
 var app = connect()
@@ -73,7 +76,11 @@ var app = connect()
 		} else {
 			var cmdModif = cmd.replace(/%7B/g,"{").replace(/%7D/g,"}").replace(/%22/g,"\u0022");
 			var cmdObj = JSON.parse(cmdModif);
-			queryDb(res, cmdObj.type, cmdObj.options);
+			if (cmdObj.type == 'livePts') {
+				liveTracking = cmdObj.options;
+			} else {
+				queryDb(res, cmdObj.type, cmdObj.options);
+			}
 		}
 	})
 

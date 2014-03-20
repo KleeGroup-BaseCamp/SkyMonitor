@@ -50,6 +50,8 @@ setInterval(function(){
 /*
  * request is called by the toolBarButtons and asks nodejs for objects in MongoDB
  * argument (string) <type> is the name of the MongoDB collection
+ * 
+ * request is also called by the liveTracking button to start & stop node.js collecting live data
  */
 
 function request(type, options) {
@@ -124,9 +126,11 @@ Sandcastle.addToolbarButton('myRoutes', function() {
 Sandcastle.addToolbarButton('liveTracking', function() {
 	if (liveTracking == "false") {
 		liveTracking = "true";
+		request('livePts', true);
 	}
 	else if (liveTracking == "true") {
 		liveTracking = "stopped";
+		request('livePts', false);
 	}
 	else { //liveTracking == "stopped"
 		liveTracking = "false";
