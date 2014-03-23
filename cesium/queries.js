@@ -27,10 +27,21 @@ exports.prepare = function(coll, cmdOptions) {
 				}
 				result.Ctry = {$in: optsArrayRegex};
 				break;
+			case "Name":
+				var regex = new RegExp("/.*/.", "i");
+				var string = cmdOptions.Name;
+				if (regex.test(string)) {
+					var queryRegex = new RegExp(string.substring(1,string.length-2), "i");
+					result.Name = queryRegex;
+				} else {
+					result.Name = string;
+				}
+				break;
 			default:
 				result[key] = cmdOptions[key];
 		}
 	}
+	console.log(result);
 	return result;
 }
 

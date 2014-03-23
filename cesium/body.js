@@ -3,6 +3,7 @@ Cesium.BingMapsApi.defaultKey = "Aqf4DYbiHt7w-dGnw9-Cp3glX221srHN6q7gDyFvS4q1dOC
 
 var viewer = new Cesium.Viewer('cesiumContainer');
 var ellipsoid = viewer.centralBody.ellipsoid;
+viewer.centralBody.depthTestAgainstTerrain = false;
 var scene = viewer.scene;
 var primitives = scene.primitives;
 var centralBody = primitives.centralBody;
@@ -99,7 +100,7 @@ Sandcastle.addToolbarButton('myPoints', function() {
 var field = document.createElement('input');
 field.setAttribute('type', 'text');
 field.setAttribute('id', "zones");
-field.setAttribute('value', "Ctry: Fr, UK, US");
+field.setAttribute('value', "Type JSON query...");
 field.onkeypress = function() {
 	if (event.keyCode == 13) {
 		for (var key in zonePrimitives) {
@@ -108,7 +109,7 @@ field.onkeypress = function() {
 		zonePrimitives = [];
 		var cmd = document.getElementById('zones').value;
 		if (cmd != "remove") {
-			request('zones',{Ctry:cmd});
+			request('zones',JSON.parse(cmd));
 		}
 	}
 }
