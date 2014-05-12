@@ -1,9 +1,9 @@
 # SkyMonitor
 ## Equipe projet
 * Centrale
-	* [Amine](mailto:mohamed-amine.bouhlel@student.ecp.fr)
-	* [Edgard](mailto:edgard.cattan@student.ecp.fr)
-	* [Giulio](mailto:giulio.foresto@student.ecp.fr)
+	* Amine
+	* Edgard
+	* Giulio
 * Klee
 	* [François](mailto:francois.constantin@kleegroup.com) 
 	* [Nicolas](mailto:nicolas.piedeloup@kleegroup.com)
