@@ -156,7 +156,7 @@ Sandcastle.addToolbarButton('radarCov', function() {
 		}
 	} else {
 		for (var i = 0; i < billboards.length; i++) {
-			billboards.get(i).color = new Cesium.Color(1, 1, 1, 1});
+			billboards.get(i).color = new Cesium.Color(1, 1, 1, 1);
 		}
 	}
 	radarCov = !radarCov;
