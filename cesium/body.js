@@ -2,11 +2,12 @@
 Cesium.BingMapsApi.defaultKey = "Aqf4DYbiHt7w-dGnw9-Cp3glX221srHN6q7gDyFvS4q1dOCFfFuShSXyEhz_xrwW";
 
 var viewer = new Cesium.Viewer('cesiumContainer');
-var ellipsoid = viewer.centralBody.ellipsoid;
-viewer.centralBody.depthTestAgainstTerrain = false;
 var scene = viewer.scene;
+var globe = scene.globe;
+var ellipsoid = globe.ellipsoid;
+globe.depthTestAgainstTerrain = false;
+
 var primitives = scene.primitives;
-var centralBody = primitives.centralBody;
 
 var billboards = new Cesium.BillboardCollection();
 primitives.add(billboards);
@@ -145,28 +146,17 @@ Sandcastle.addToolbarButton('radarCov', function() {
 		for (var i = 0; i < billboards.length; i++) {
 			var point = billboards.get(i);
 			try {
-				var color = colors[point.getId().Rdr];
-				point.setColor({
-					red: color.red,
-					green: color.green,
-					blue: color.blue,
-					alpha: 1
-				});	
+				point.color = colors[point.id.Rdr];	
 			} catch (e) {
 				var newColor = new Cesium.Color();
 				Cesium.Color.fromRandom({alpha:1}, newColor);
-				point.setColor({
-					red: newColor.red,
-					green: newColor.green,
-					blue: newColor.blue,
-					alpha: 1
-				});
-				colors[point.getId().Rdr] = newColor;
+				point.color = newColor;
+				colors[point.id.Rdr] = newColor;
 			}
 		}
 	} else {
 		for (var i = 0; i < billboards.length; i++) {
-			billboards.get(i).setColor({red: 1, green: 1, blue: 1, alpha: 1});
+			billboards.get(i).color = new Cesium.Color(1, 1, 1, 1});
 		}
 	}
 	radarCov = !radarCov;
@@ -194,7 +184,7 @@ var terrainProviders = [
 	{ name : 'CesiumTerrainProvider', provider : cesiumTerrainProvider }
 ];
 
-centralBody.terrainProvider = ellipsoidProvider; // Default terrainProvider
+globe.terrainProvider = ellipsoidProvider; // Default terrainProvider
 
 createTerrainMenu(terrainProviders);
 
@@ -235,24 +225,22 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 	var pickedObject = scene.pick(movement.endPosition);
 	if (Cesium.defined(pickedObject)) {
 		if (Cesium.defined(pickedObject.primitive.geometryInstances)) { // zone
-			label.setText(
+			label.text =
 				pickedObject.primitive.geometryInstances.id.Name + " - " +
-				pickedObject.primitive.geometryInstances.id.Type
-			);
-		} else if (Cesium.defined(pickedObject.primitive.getId().Flight)) { // point
-			label.setText(
-				pickedObject.primitive.getId().Flight + " - " +
-				pickedObject.primitive.getId().From + " - " +
-				pickedObject.primitive.getId().To + " - " +
-				pickedObject.primitive.getId().Rdr
-			);
-		} else if (Cesium.defined(pickedObject.primitive.getId().Type) && pickedObject.primitive.getId().Type == "airWay") {
-			label.setText(pickedObject.primitive.getId().Ident);
+				pickedObject.primitive.geometryInstances.id.Type;
+		} else if (Cesium.defined(pickedObject.primitive.id.Flight)) { // point
+			label.text =
+				pickedObject.primitive.id.Flight + " - " +
+				pickedObject.primitive.id.From + " - " +
+				pickedObject.primitive.id.To + " - " +
+				pickedObject.primitive.id.Rdr;
+		} else if (Cesium.defined(pickedObject.primitive.id.Type) && pickedObject.primitive.id.Type == "airWay") {
+			label.text = pickedObject.primitive.id.Ident;
 		}
-		var cartesian = scene.camera.controller.pickEllipsoid(movement.endPosition, ellipsoid);
-		label.setPosition(cartesian);
+		var cartesian = scene.camera.pickEllipsoid(movement.endPosition, ellipsoid);
+		label.position = cartesian;
 	} else {
-		label.setText('');
+		label.text = '';
 	}
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -263,19 +251,19 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 	var pickedObject = scene.pick(movement.position);
 	if (Cesium.defined(pickedObject)) {
-		if (Cesium.defined(pickedObject.primitive.getId().Flight)) {
-			var flightNo = pickedObject.primitive.getId().Flight;
+		if (Cesium.defined(pickedObject.primitive.id.Flight)) {
+			var flightNo = pickedObject.primitive.id.Flight;
 			points = true;
 			liveTracking = "false";
 			billboards.removeAll();
 			request('points', {Flight: flightNo});
 		}
-		else if (pickedObject.primitive.getId().Type == "airWay") {
+		else if (pickedObject.primitive.id.Type == "airWay") {
 			var route = [];
 			var i = 0;
 			while (i < polylines.length) {
 				var leg = polylines.get(i);
-				if (leg.getId().Ident != pickedObject.primitive.getId().Ident) {
+				if (leg.id.Ident != pickedObject.primitive.id.Ident) {
 					polylines.remove(leg);
 				}
 				else {i++;}
