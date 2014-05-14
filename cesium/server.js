@@ -5,14 +5,7 @@ var Db = require('mongodb').Db;
 var Server = require('mongodb').Server;
 var assert = require('assert');
 var queries = require('./queries.js');
-var pointsSourceURL = {
-	host: '172.20.0.9',
-	port: 3128,
-	path: 'http://db.flightradar24.com/zones/full_all.js',
-	headers: {
-		Host: 'db.flightradar24.com'
-	}	
-};
+var pointsSourceURL = require('./pointsSourceURL.js');
 var db = new Db('db', new Server('localhost', 27017), {safe: false});
 
 var Points = "";
