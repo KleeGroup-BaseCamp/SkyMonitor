@@ -34,7 +34,7 @@ function createTerrainMenu(terrainProviders) {
 			if (altitudeRatio == 10) {
 				alert("Attention! Vous êtes en mode altitudes x10 !");
 			}
-            centralBody.terrainProvider = terrainProviders[this.selectedIndex].provider;
+            globe.terrainProvider = terrainProviders[this.selectedIndex].provider;
         }, 'terrainMenu');
 }
 
@@ -43,7 +43,7 @@ function addPlanesToPrimitives(collection, type) {
 	image.onload = function() {
 		billboards.removeAll();
 		
-		var textureAtlas = scene.context.createTextureAtlas({
+		var textureAtlas = scene.createTextureAtlas({
 			image: image
 		});
 		billboards.textureAtlas = textureAtlas;
