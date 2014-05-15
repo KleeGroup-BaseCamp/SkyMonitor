@@ -5,4 +5,4 @@ exports.options = {
 	headers: {
 		Host: 'db.flightradar24.com'
 	}
-}
+};
