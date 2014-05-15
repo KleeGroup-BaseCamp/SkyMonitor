@@ -51,9 +51,9 @@ setInterval(function(){
 
 /*
  * request is called by the toolBarButtons and asks nodejs for objects in MongoDB
- * argument (string) <type> is the name of the MongoDB collection
+ * argument (string)type is the name of the MongoDB collection
  * 
- * request is also called by the liveTracking button to start & stop node.js collecting live data
+ * request is also called by the liveTracking button to start & stop nodejs collecting live data
  */
 
 function request(type, options) {
@@ -97,6 +97,10 @@ Sandcastle.addToolbarButton('myPoints', function() {
 	}
 	points = !points;
 });
+
+	/*
+	 * Zone search bar
+	 */
 
 var field = document.createElement('input');
 field.setAttribute('type', 'text');
@@ -142,12 +146,13 @@ Sandcastle.addToolbarButton('liveTracking', function() {
 
 Sandcastle.addToolbarButton('radarCov', function() {
 	if (!radarCov) {
-		var colors = {}
+		var colors = {};
 		for (var i = 0; i < billboards.length; i++) {
 			var point = billboards.get(i);
-			try {
-				point.color = colors[point.id.Rdr];	
-			} catch (e) {
+			if (Cesium.defined(colors[point.id.Rdr])) {
+				point.color = colors[point.id.Rdr];
+			}
+			else {
 				var newColor = new Cesium.Color();
 				Cesium.Color.fromRandom({alpha:1}, newColor);
 				point.color = newColor;
