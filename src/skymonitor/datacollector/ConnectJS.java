@@ -1,5 +1,5 @@
 package skymonitor.datacollector;
-//newline
+
 import java.net.*;
 
 public class ConnectJS {

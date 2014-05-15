@@ -35,7 +35,9 @@ public class Executeur {
 		InputStreamReader isr = new InputStreamReader(Principal.flux);
 		BufferedReader br = new BufferedReader(isr);
 		try {
-			String fluxString = br.readLine().replace("pd_callback(","").replace(");","");
+			br.readLine();
+			String line = br.readLine();
+			String fluxString = line.replace("pd_callback(","").replace(");","");
 			DBObject dotsObj = (DBObject)JSON.parse(fluxString);
 			dotsObj.removeField("full_count");
 			dotsObj.removeField("version");
