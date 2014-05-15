@@ -14,7 +14,7 @@ public class Principal {
 	static String collection = "points";
 	static Database databaseInstance = new Database(server, database, collection);
 	
-	public static void main() {
+	public static void main(String[] args) {
 		Repeteur.main(); //Répète Executeur toutes les x secondes
 	}
 }
