@@ -1,5 +1,5 @@
 package skymonitor.datacollector;
-
+//newline
 import java.io.InputStream;
 import com.mongodb.*;
 
