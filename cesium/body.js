@@ -215,6 +215,9 @@ Sandcastle.addToolbarMenu(altitudeOptions, function() {
 	altitudeRatio = altitudes[this.selectedIndex].ratio;
 }, 'terrainMenu');
 
+//createInspectorLike();
+createDDMenu();
+
 /*
  * EVENTS
  *
@@ -239,7 +242,8 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 				pickedObject.primitive.id.From + " - " +
 				pickedObject.primitive.id.To + " - " +
 				pickedObject.primitive.id.Rdr;
-		} else if (Cesium.defined(pickedObject.primitive.id.Type) && pickedObject.primitive.id.Type == "airWay") {
+		} else if (Cesium.defined(pickedObject.primitive.id.Type)
+			&& pickedObject.primitive.id.Type == "airWay") {
 			label.text = pickedObject.primitive.id.Ident;
 		}
 		var cartesian = scene.camera.pickEllipsoid(movement.endPosition, ellipsoid);
@@ -256,6 +260,9 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 	var pickedObject = scene.pick(movement.position);
 	if (Cesium.defined(pickedObject)) {
+		/*
+		 * Plane trace
+		 */
 		if (Cesium.defined(pickedObject.primitive.id.Flight)) {
 			var flightNo = pickedObject.primitive.id.Flight;
 			points = true;
@@ -263,6 +270,9 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 			billboards.removeAll();
 			request('points', {Flight: flightNo});
 		}
+		/*
+		 * Keep unique airway
+		 */
 		else if (pickedObject.primitive.id.Type == "airWay") {
 			var route = [];
 			var i = 0;
