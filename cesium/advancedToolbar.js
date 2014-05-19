@@ -42,18 +42,44 @@ function createInspectorLike() {
 	debugShowFrustums.appendChild(frustumStats);
 }
 
+function requestZones() {
+	//if (e.keyCode == 13) {
+		var query = {};
+		var nameVal = document.getElementById('zNameSearch').value;
+		var ctryVal = document.getElementById('zCtrySearch').value;
+		var typeVal = document.getElementById('zTypeSearch').value;
+		if (nameVal != "") {
+			query.Name = nameVal;
+		}
+		if (ctryVal != "") {
+			query.Ctry = ctryVal;
+		}
+		if (typeVal != "") {
+			query.Type = typeVal;
+		}
+		
+		request('zones', query);
+	//}
+}
+
 function createDDMenu() {
 	require(['dojo/dom-construct', 'dijit/TitlePane'], function (domConstruct, TitlePane) {
 		var tp = new TitlePane({
-			title: 'Manipulate Layers',
+			title: 'Search Zones',
 			id:'title-pane',
-			content: '<div id="layerTable"></div>',
+			content: '<div id="zoneMenu" onkeypress="requestZones();"></div>',
 			open: false
 		});
-		document.getElementById("advancedToolbar").appendChild(tp.domNode);
-		document.getElementById('layerTable').innerHTML = '';
-		domConstruct.place('<div>ciao</div>','layerTable');
-		Sandcastle.addToolbarButton('name', function(){},'layerTable');
-		//updateUserInterface(imageryLayers);
+		
+		document.getElementById("toolbar").appendChild(tp.domNode);
+		domConstruct.place('<input type="text" id="zNameSearch" value="Name"></input>','zoneMenu');
+		domConstruct.place('<br><input type="text" id="zCtrySearch" value="Country"></input>','zoneMenu');
+		domConstruct.place('<br><input type="text" id="zTypeSearch" value="Type"></input>','zoneMenu');
+		Sandcastle.addToolbarButton('Remove all', function() {
+			for (var key in zonePrimitives) {
+				primitives.remove(zonePrimitives[key]);
+			}
+			zonePrimitives = [];
+		},'zoneMenu');
 	});
 }
