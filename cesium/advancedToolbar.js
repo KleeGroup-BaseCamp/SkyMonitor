@@ -78,11 +78,11 @@ function createDDMenu() {
 		
 		document.getElementById("toolbar").appendChild(tp.domNode);
 		domConstruct.place('<input type="text" id="zNameSearch" value="Name (exact or regex)" style="color:#888;" onfocus="inputFocus(this)" onblur="inputBlur(this)">','zoneMenu');
-		domConstruct.place('<br><input type="text" id="zCtrySearch" value="Country1, Country2..." style="color:#888;" onfocus="inputFocus(this)" onblur="inputBlur(this)">','zoneMenu');
+		domConstruct.place('<br><input type="text" id="zCtrySearch" value="Country1, /country2/i..." style="color:#888;" onfocus="inputFocus(this)" onblur="inputBlur(this)">','zoneMenu');
 		Sandcastle.addToolbarButton('Search', function() {
 			requestZones();
 		},'zoneMenu');
-		domConstruct.place('<br><input type="text" id="zTypeSearch" value="Type" style="color:#888;" onfocus="inputFocus(this)" onblur="inputBlur(this)">','zoneMenu');
+		domConstruct.place('<br><input type="text" id="zTypeSearch" value="Type1, /type2/i..." style="color:#888;" onfocus="inputFocus(this)" onblur="inputBlur(this)">','zoneMenu');
 		Sandcastle.addToolbarButton('Remove all', function() {
 			for (var key in zonePrimitives) {
 				primitives.remove(zonePrimitives[key]);

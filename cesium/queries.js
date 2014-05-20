@@ -15,27 +15,31 @@ exports.query = function(coll) {
 	}
 };
 
+function convertIfRegex(regexString) {
+	var regex = new RegExp("/.*/.?", "i");
+	if (regex.test(regexString)) {
+		var queryRegex = new RegExp(regexString.split("/")[1], "i");
+		return queryRegex;
+	}
+	return regexString;
+}
+
 exports.prepare = function(coll, cmdOptions) {
 	var result = {};
 	for (var key in cmdOptions) {
 		switch(key) {
 			case "Ctry":
-				var optsArray = cmdOptions.Ctry.split(",");
+			case "Type":
+				console.log(key);
+				var optsArray = cmdOptions[key].split(",");
 				var optsArrayRegex = [];
-				for (var key in optsArray) {
-					optsArrayRegex[key] = new RegExp(optsArray[key], "i");
+				for (var keyArr in optsArray) {
+					optsArrayRegex[keyArr] = convertIfRegex(optsArray[keyArr]);
 				}
-				result.Ctry = {$in: optsArrayRegex};
+				result[key] = {$in: optsArrayRegex};
 				break;
 			case "Name":
-				var regex = new RegExp("/.*/.", "i");
-				var string = cmdOptions.Name;
-				if (regex.test(string)) {
-					var queryRegex = new RegExp(string.substring(1,string.length-2), "i");
-					result.Name = queryRegex;
-				} else {
-					result.Name = string;
-				}
+				result.Name = convertIfRegex(cmdOptions.Name);
 				break;
 			default:
 				result[key] = cmdOptions[key];
