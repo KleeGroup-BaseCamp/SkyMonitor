@@ -28,9 +28,14 @@ exports.prepare = function(coll, cmdOptions) {
 	var result = {};
 	for (var key in cmdOptions) {
 		switch(key) {
+			// points
+			case "Flight":
+			case "From":
+			case "To":
+			// zones
+			case "Name":
 			case "Ctry":
 			case "Type":
-				console.log(key);
 				var optsArray = cmdOptions[key].split(",");
 				var optsArrayRegex = [];
 				for (var keyArr in optsArray) {
@@ -38,11 +43,49 @@ exports.prepare = function(coll, cmdOptions) {
 				}
 				result[key] = {$in: optsArrayRegex};
 				break;
-			case "Name":
-				result.Name = convertIfRegex(cmdOptions.Name);
+			// points
+			case "After":
+				var date = new Date(cmdOptions[key]);
+				try {
+					result.Time.$gte = date.getTime()/1000; // Time in db is in sec
+				} catch(e) {
+					result.Time = {};
+					result.Time.$gte = date.getTime()/1000;
+				}
+				break;
+			case "Before":
+				var date = new Date(cmdOptions[key]);
+				try {
+					result.Time.$lte = date.getTime()/1000;
+				} catch(e) {
+					result.Time = {};
+					result.Time.$lte = date.getTime()/1000;
+				}
+				break;
+			case "Higher":
+				try {
+					result.Alt.$gt = parseInt(cmdOptions[key]);
+				} catch(e) {
+					result.Alt = {};
+					result.Alt.$gt = parseInt(cmdOptions[key]);
+				}
+				break;
+			case "Lower":
+				try {
+					result.Alt.$lte = parseInt(cmdOptions[key]);
+				} catch(e) {
+					result.Alt = {};
+					result.Alt.$lte = parseInt(cmdOptions[key]);
+				}
+				break;
+			case "Faster":
+				result.Spd = {$gt: parseInt(cmdOptions[key])};
 				break;
 			default:
-				result[key] = cmdOptions[key];
+				result[key] = parseFloat(cmdOptions[key]);
+				if (result[key] == NaN) {
+					result[key] = cmdOptions[key];
+				}
 		}
 	}
 	console.log(result);

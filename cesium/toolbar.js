@@ -60,7 +60,30 @@ function createToolbar() {
 	 * advancedToolbar.js
 	 */
 		 
-	createDDMenu();
+	createDDMenu('zones', ["Name", "Ctry", "Type"], ["Name1, /name2/i...", "Country1, /country2/i...", "Type1, /type2/i..."]);
+	createDDMenu(
+		'points',
+		[
+			"Flight",
+			"From",
+			"To",
+			"After", // include to queries.prepare
+			"Before", // include to queries.prepare
+			"Higher", // include to queries.prepare
+			"Lower", // include to queries.prepare
+			"Faster" // include to queries.prepare
+		],
+		[
+			"Flight1, flight2...",
+			"From1, from2...",
+			"To1, to2...",
+			"Start date YYYY-MM-DD HH:MM",
+			"Stop date YYYY-MM-DD HH:MM",
+			"Floor in feet",
+			"Ceiling in feet",
+			"Min speed in knots"
+		]
+	);
 
 	/*
 	 * Terrain Button

@@ -71,7 +71,7 @@ var app = connect()
 		if (cmd == "livePts") {
 			res.end(Points);
 		} else {
-			var cmdModif = cmd.replace(/%7B/g,"{").replace(/%7D/g,"}").replace(/%22/g,"\u0022");
+			var cmdModif = cmd.replace(/%7B/g,"{").replace(/%7D/g,"}").replace(/%22/g,"\u0022").replace(/%5E/g,"\u005E");
 			var cmdObj = JSON.parse(cmdModif);
 			if (cmdObj.type == 'livePts') {
 				liveTracking = cmdObj.options;
