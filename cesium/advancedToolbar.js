@@ -20,7 +20,7 @@ function inputBlur(i){
 
 function createRemoveButton(field) {
 	switch (field) {
-		case 'zones':
+		case "zones":
 			Sandcastle.addToolbarButton('Remove all', function() {
 				for (var key in zonePrimitives) {
 					primitives.remove(zonePrimitives[key]);
@@ -28,6 +28,11 @@ function createRemoveButton(field) {
 				zonePrimitives = [];
 			}, field + 'Menu');
 		break;
+		case "points":
+			Sandcastle.addToolbarButton('Remove all', function() {
+				billboards.removeAll();
+				points = !points;
+			}, field + 'Menu');
 	}
 }
 
@@ -44,6 +49,7 @@ function createDDMenu(field, attrArray, hintArray) {
 		for (var i = 0; i < attrArray.length; i++) {
 			domConstruct.place('<input type="text" id="' + attrArray[i] + '" value="' + hintArray[i] + '" style="color:#888; width:20em;" onfocus="inputFocus(this)" onblur="inputBlur(this)"><br>', field + 'Menu');
 		}
+		domConstruct.place('<input type="text" id="Limit" value="Max. results" style="color:#888; width:20em;" onfocus="inputFocus(this)" onblur="inputBlur(this)"><br>', field + 'Menu');
 		Sandcastle.addToolbarButton('Search', function() {
 			requestZones(field, attrArray);
 		}, field + 'Menu');

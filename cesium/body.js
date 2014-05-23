@@ -26,18 +26,20 @@ var altitudeRatio = 1; // Default
  * setInterval asks nodejs for live input: (string)Points in server.js
  */
 
+function newXhrObject() {
+	if(window.XMLHttpRequest) // Firefox 
+		return new XMLHttpRequest(); 
+	else if(window.ActiveXObject) // Internet Explorer 
+		return new ActiveXObject("Microsoft.XMLHTTP"); 
+	else {
+		alert("Votre navigateur ne supporte pas les objets XMLHTTPRequest..."); 
+		return;
+	}
+}
+ 
 setInterval(function(){
 	if (liveTracking == "true") {
-		var xhr_object = null; 
-
-		if(window.XMLHttpRequest) // Firefox 
-			xhr_object = new XMLHttpRequest(); 
-		else if(window.ActiveXObject) // Internet Explorer 
-			xhr_object = new ActiveXObject("Microsoft.XMLHTTP"); 
-		else {
-			alert("Votre navigateur ne supporte pas les objets XMLHTTPRequest..."); 
-			return; 
-		}
+		var xhr_object = newXhrObject();
 		
 		xhr_object.open("GET", "livePts", true); 
 		
@@ -49,7 +51,7 @@ setInterval(function(){
 		
 		xhr_object.send(null); 
 	}
-}, 5000);
+}, 3000);
 
 /*
  * request is called by the toolBarButtons and asks nodejs for objects in MongoDB

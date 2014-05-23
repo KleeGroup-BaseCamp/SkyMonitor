@@ -1,14 +1,5 @@
 function createToolbar() {
 
-	Sandcastle.addToolbarButton('myPoints', function() {
-		if (!points) {
-			request("points");
-		} else {
-			billboards.removeAll();
-		}
-		points = !points;
-	});
-
 	Sandcastle.addToolbarButton('myRoutes', function() {
 		if (!routes) {
 			request("airWays");
@@ -67,11 +58,11 @@ function createToolbar() {
 			"Flight",
 			"From",
 			"To",
-			"After", // include to queries.prepare
-			"Before", // include to queries.prepare
-			"Higher", // include to queries.prepare
-			"Lower", // include to queries.prepare
-			"Faster" // include to queries.prepare
+			"After",
+			"Before",
+			"Higher",
+			"Lower",
+			"Faster"
 		],
 		[
 			"Flight1, flight2...",

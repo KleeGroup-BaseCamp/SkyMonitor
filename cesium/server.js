@@ -4,8 +4,10 @@ var url = require('url');
 var Db = require('mongodb').Db;
 var Server = require('mongodb').Server;
 var assert = require('assert');
+
 var queries = require('./queries.js');
 var pointsSourceURL = require('./pointsSourceURL.js').options;
+
 var db = new Db('db', new Server('localhost', 27017), {safe: false});
 
 var Points = "";
@@ -68,12 +70,12 @@ var app = connect()
 	.use(function(req, res){
 		var page = url.parse(req.url).pathname;
 		var cmd = page.substring(1, page.length);
-		if (cmd == "livePts") {
+		if (cmd == "livePts") { // Timer request
 			res.end(Points);
 		} else {
 			var cmdModif = cmd.replace(/%7B/g,"{").replace(/%7D/g,"}").replace(/%22/g,"\u0022").replace(/%5E/g,"\u005E");
 			var cmdObj = JSON.parse(cmdModif);
-			if (cmdObj.type == 'livePts') {
+			if (cmdObj.type == 'livePts') { // liveTracking status, true or false: starts & stops node getting live points
 				liveTracking = cmdObj.options;
 			} else {
 				queryDb(res, cmdObj.type, cmdObj.options);

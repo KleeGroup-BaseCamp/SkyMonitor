@@ -48,21 +48,20 @@ function addPlanesToPrimitives(collection, type) {
 		});
 		billboards.textureAtlas = textureAtlas;
 		
-		var A, B, C, D, errorFactor; // errorFactor corrige Alt dans MongoDB
+		var A, B, C, D, E, F, G, H;
 		if (type == "livePts") {
-			A = 1, B = 2, C = 3, D = 4, E = 13, F = 11, G = 12, H = 7, errorFactor = 1;
+			A = 1, B = 2, C = 3, D = 4, E = 13, F = 11, G = 12, H = 7;
 		} else { // type == "points"
-			A = 'Lat', B = 'Lon', C = 'Hdg', D = 'Alt', E = 'Flight', F = 'From', G = 'To',
-			H = 'Rdr', errorFactor = 100;
+			A = 'Lat', B = 'Lon', C = 'Hdg', D = 'Alt', E = 'Flight', F = 'From', G = 'To', H = 'Rdr';
 		}
 		
 		for (var key in collection) {
 			billboards.add({
 				imageIndex: 0,
 				position: ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(
-					collection[key][B],									//Lon
-					collection[key][A],									//Lat
-					collection[key][D]*altitudeRatio*0.3048/errorFactor	//Alt
+					collection[key][B],						//Lon
+					collection[key][A],						//Lat
+					collection[key][D]*altitudeRatio*0.3048	//Alt
 				)),
 				rotation: -Cesium.Math.toRadians(collection[key][C]),
 				alignedAxis: Cesium.Cartesian3.UNIT_Z,
@@ -88,6 +87,22 @@ function displayLive(objectString) {
 	addPlanesToPrimitives(newPoints, "livePts");
 }
 
+function scrollSegments(position, segments, polylinePoints) {
+	for (var i = 0; i < segments.length; i++) {
+		if (segments[i][1] == position) {
+			segments[i].reverse();
+		}
+		if (segments[i][0] == position) {
+			var newPos = segments[i][1];
+			polylinePoints.unshift(newPos);
+			segments.splice(i,1);
+			return newPos;
+		}
+	}
+	polylinePoints.reverse();
+	return "reversed";
+}
+
 function display(type, objectString) {
 	// (String)type is the name of MongoDB Collection
 	var geometriesArray = JSON.parse(objectString);
@@ -98,13 +113,33 @@ function display(type, objectString) {
 		case "airWays":
 			for (var key in geometriesArray) {
 				var legs = geometriesArray[key].Legs;
+				
+				var segments = [];
 				for (var legKey in legs) {
-					var coords = legs[legKey].Line.coordinates;
+					segments.push(legs[legKey].Line.coordinates)
+				}
+				
+				while (segments.length > 0) {
+					var polylinePoints = [];
+					var pos = segments[0][0];
+					polylinePoints[0] = segments[0][0];
+					polylinePoints[1] = segments.shift()[1];
+					
+					while (pos != "reversed") {
+						pos = scrollSegments(pos, segments, polylinePoints);
+					}
+					pos = polylinePoints[0];
+					while (pos != "reversed") {
+						pos = scrollSegments(pos, segments, polylinePoints);
+					}
+					
+					var polylinePos = [];
+					for (var i = 0; i < polylinePoints.length; i++) {
+						polylinePos.push(new Cesium.Cartographic.fromDegrees(polylinePoints[i][0], polylinePoints[i][1]));
+					}
+					
 					polylines.add({
-						positions: ellipsoid.cartographicArrayToCartesianArray([
-							Cesium.Cartographic.fromDegrees(coords[0][0], coords[0][1]),
-							Cesium.Cartographic.fromDegrees(coords[1][0], coords[1][1])
-						]),
+						positions: ellipsoid.cartographicArrayToCartesianArray(polylinePos),
 						material: Cesium.Material.fromType('Color', {
 							color : Cesium.Color.WHITE
 						}),
@@ -114,7 +149,26 @@ function display(type, objectString) {
 						}
 					});
 				}
+				
+				// for (var legKey in legs) {
+					// var coords = legs[legKey].Line.coordinates;
+					// polylines.add({
+						// positions: ellipsoid.cartographicArrayToCartesianArray([
+							// Cesium.Cartographic.fromDegrees(coords[0][0], coords[0][1]),
+							// Cesium.Cartographic.fromDegrees(coords[1][0], coords[1][1])
+						// ]),
+						// material: Cesium.Material.fromType('Color', {
+							// color : Cesium.Color.WHITE
+						// }),
+						// id: {
+							// Ident: geometriesArray[key].Ident,
+							// Type: "airWay"
+						// }
+					// });
+				// }
+				
 			}
+			console.log(polylines.length);
 			break;
 		case "zones":
 			var zoneInstances = [];
