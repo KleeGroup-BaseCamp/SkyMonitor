@@ -89,10 +89,10 @@ function displayLive(objectString) {
 
 function scrollSegments(position, segments, polylinePoints) {
 	for (var i = 0; i < segments.length; i++) {
-		if (segments[i][1] == position) {
+		if (segments[i][1].toString() == position.toString()) {
 			segments[i].reverse();
 		}
-		if (segments[i][0] == position) {
+		if (segments[i][0].toString() == position.toString()) {
 			var newPos = segments[i][1];
 			polylinePoints.unshift(newPos);
 			segments.splice(i,1);
@@ -149,26 +149,7 @@ function display(type, objectString) {
 						}
 					});
 				}
-				
-				// for (var legKey in legs) {
-					// var coords = legs[legKey].Line.coordinates;
-					// polylines.add({
-						// positions: ellipsoid.cartographicArrayToCartesianArray([
-							// Cesium.Cartographic.fromDegrees(coords[0][0], coords[0][1]),
-							// Cesium.Cartographic.fromDegrees(coords[1][0], coords[1][1])
-						// ]),
-						// material: Cesium.Material.fromType('Color', {
-							// color : Cesium.Color.WHITE
-						// }),
-						// id: {
-							// Ident: geometriesArray[key].Ident,
-							// Type: "airWay"
-						// }
-					// });
-				// }
-				
 			}
-			console.log(polylines.length);
 			break;
 		case "zones":
 			var zoneInstances = [];

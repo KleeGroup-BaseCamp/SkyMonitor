@@ -98,14 +98,15 @@ exports.prepare = function(coll, cmdOptions) {
 }
 
 exports.airWaysSearch = function(route) {
-	for (var key in route.Legs) {
-		var From = route.Legs[key].Line.coordinates[0]
-		if (From[0] > -4.8 && From[0] < 8.3 && From[1] > 42.2 && From[1] < 51.1) { // France
-			return true;
-		}
-	}
-	return false;
-	// return true;
+	// for (var key in route.Legs) {
+		// var From = route.Legs[key].Line.coordinates[0]
+		// if (From[0] > -4.8 && From[0] < 8.3 && From[1] > 42.2 && From[1] < 51.1) { // France
+			// return true;
+		// }
+	// }
+	// return false;
+	return true;
+	// return route.Ident == "A1";
 }
 
 exports.options = {limit: limit};
