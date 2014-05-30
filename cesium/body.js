@@ -22,20 +22,29 @@ var radarCov = false;
 
 var altitudeRatio = 1; // Default
 
-/*
- * setInterval asks nodejs for live input: (string)Points in server.js
- */
+var log = "";
 
 function newXhrObject() {
-	if(window.XMLHttpRequest) // Firefox 
-		return new XMLHttpRequest(); 
-	else if(window.ActiveXObject) // Internet Explorer 
-		return new ActiveXObject("Microsoft.XMLHTTP"); 
+	if(window.XMLHttpRequest) { // Firefox 
+		return new XMLHttpRequest();}
+	else if(window.ActiveXObject) { // Internet Explorer 
+		return new ActiveXObject("Microsoft.XMLHTTP");}
 	else {
 		alert("Votre navigateur ne supporte pas les objets XMLHTTPRequest..."); 
 		return;
 	}
 }
+ 
+function sendLog(log) {
+	var xhr_object = newXhrObject();
+	xhr_object.open("GET", "log=" + log, true); 
+	xhr_object.timeout = 1000;
+	xhr_object.send(null);
+}
+ 
+/*
+ * setInterval asks nodejs for live input: (string)Points in server.js
+ */
  
 setInterval(function(){
 	if (liveTracking == "true") {
@@ -61,16 +70,7 @@ setInterval(function(){
  */
 
 function request(type, options) {
-	var xhr_object = null; 
-
-	if(window.XMLHttpRequest) // Firefox 
-		xhr_object = new XMLHttpRequest(); 
-	else if(window.ActiveXObject) // Internet Explorer 
-		xhr_object = new ActiveXObject("Microsoft.XMLHTTP"); 
-	else {
-		alert("Votre navigateur ne supporte pas les objets XMLHTTPRequest..."); 
-		return; 
-	}
+	var xhr_object = newXhrObject();
 	
 	var request = {
 		type: type,
@@ -82,11 +82,19 @@ function request(type, options) {
 	
 	xhr_object.onreadystatechange = function() { 
 		if(xhr_object.readyState == 4) {
+			var date = new Date();
+			log += 'rnrnResRec:' + date.getTime();
 			display(type, xhr_object.responseText);
+			date = new Date();
+			log += 'rnrnRendered:' + date.getTime();
+			sendLog(log);
+			log = "";
 		}
 	}
 	
-	xhr_object.send(null); 
+	var date = new Date();
+	xhr_object.send(null);
+	log += 'rnrnReqSent:' + date.getTime();
 }
 
 /*
@@ -131,12 +139,13 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
 	/*
-	 * ACTIONS ON CLICK
+	 * ACTIONS on Click
 	 */
 
 viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 	var pickedObject = scene.pick(movement.position);
 	if (Cesium.defined(pickedObject)) {
+		
 		/*
 		 * Plane trace
 		 */
@@ -147,6 +156,7 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 			billboards.removeAll();
 			request('points', {Flight: flightNo});
 		}
+		
 		/*
 		 * Keep unique airway
 		 */

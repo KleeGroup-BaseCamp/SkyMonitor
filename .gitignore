@@ -19,4 +19,5 @@ cesium/CHANGES.md
 cesium/LICENSE.md
 cesium/README.md
 cesium/pointsSourceURL.js
+cesium/log.txt
 src/skymonitor/datacollector/ConnectJS.java

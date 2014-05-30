@@ -4,6 +4,7 @@ var url = require('url');
 var Db = require('mongodb').Db;
 var Server = require('mongodb').Server;
 var assert = require('assert');
+var fs = require('fs');
 
 var queries = require('./queries.js');
 var pointsSourceURL = require('./pointsSourceURL.js').options;
@@ -26,6 +27,12 @@ db.open(function (err, db) {
 });
 
 function queryDb(res, coll, cmdOptions) {
+	var options = queries.options;
+	if (typeof cmdOptions !== 'undefined' && typeof cmdOptions.Limit !== 'undefined') {
+		options.limit = cmdOptions.Limit;
+		delete cmdOptions.Limit;
+	}
+	
 	var mongoCmdOpts = queries.prepare(coll, cmdOptions);
 	
 	db.open(function (err, db) {
@@ -36,11 +43,18 @@ function queryDb(res, coll, cmdOptions) {
 		for (var key in mongoCmdOpts) {
 			query[key] = mongoCmdOpts[key];
 		}
-		var options = queries.options;
-
+		
+		var date = new Date();
+		fs.appendFile('log.txt','\r\nData:' + coll);
+		fs.appendFile('log.txt','\r\nQuerDB:' + date.getTime());
 		collection.find(query, options).toArray(function(err, results) {
+			var date = new Date();
+			fs.appendFile('log.txt','\r\nDataRec:' + date.getTime());
+			fs.appendFile('log.txt','\r\nResults:' + results.length);
 			db.close();
 			res.end(JSON.stringify(results));
+			date = new Date();
+			fs.appendFile('log.txt','\r\nResSent:' + date.getTime());
 		});
 	});
 }
@@ -68,16 +82,21 @@ setInterval(function() {
 var app = connect()
 	.use(connect.static(__dirname))
 	.use(function(req, res){
+		var date = new Date();
 		var page = url.parse(req.url).pathname;
 		var cmd = page.substring(1, page.length);
 		if (cmd == "livePts") { // Timer request
 			res.end(Points);
+		}
+		else if (cmd.substring(0,4) == "log=") {
+			fs.appendFile('log.txt', cmd.replace("log=","").replace(/rnrn/g,"\r\n") + '\r\n#');
 		} else {
 			var cmdModif = cmd.replace(/%7B/g,"{").replace(/%7D/g,"}").replace(/%22/g,"\u0022").replace(/%5E/g,"\u005E");
 			var cmdObj = JSON.parse(cmdModif);
 			if (cmdObj.type == 'livePts') { // liveTracking status, true or false: starts & stops node getting live points
 				liveTracking = cmdObj.options;
 			} else {
+				fs.appendFile('log.txt','\r\nReqRec:' + date.getTime());
 				queryDb(res, cmdObj.type, cmdObj.options);
 			}
 		}

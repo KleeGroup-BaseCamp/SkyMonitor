@@ -24,8 +24,6 @@ function convertIfRegex(regexString) {
 	return regexString;
 }
 
-var limit = 80000;
-
 exports.prepare = function(coll, cmdOptions) {
 	var result = {};
 	for (var key in cmdOptions) {
@@ -83,14 +81,8 @@ exports.prepare = function(coll, cmdOptions) {
 			case "Faster":
 				result.Spd = {$gt: parseInt(cmdOptions[key])};
 				break;
-			case "Limit":
-				limit = cmdOptions[key];
-				break;
 			default:
-				result[key] = parseFloat(cmdOptions[key]);
-				if (result[key] == NaN) {
-					result[key] = cmdOptions[key];
-				}
+				result[key] = cmdOptions[key];
 		}
 	}
 	console.log(result);
@@ -109,4 +101,4 @@ exports.airWaysSearch = function(route) {
 	// return route.Ident == "A1";
 }
 
-exports.options = {limit: limit};
+exports.options = {limit: 100000};

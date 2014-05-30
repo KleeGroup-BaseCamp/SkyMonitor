@@ -2,7 +2,7 @@ function createToolbar() {
 
 	Sandcastle.addToolbarButton('myRoutes', function() {
 		if (!routes) {
-			request("airWays");
+			request('airWays');
 		} else {
 			polylines.removeAll();
 		}
