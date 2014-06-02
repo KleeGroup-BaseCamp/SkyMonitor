@@ -48,11 +48,15 @@ function queryDb(res, coll, cmdOptions) {
 		fs.appendFile('log.txt','\r\nData:' + coll);
 		fs.appendFile('log.txt','\r\nQuerDB:' + date.getTime());
 		collection.find(query, options).toArray(function(err, results) {
-			var date = new Date();
+			console.log("Got results");
+			date = new Date();
 			fs.appendFile('log.txt','\r\nDataRec:' + date.getTime());
 			fs.appendFile('log.txt','\r\nResults:' + results.length);
 			db.close();
-			res.end(JSON.stringify(results));
+			console.log("Will stringify");
+			var stringified = JSON.stringify(results);
+			console.log("Stringified");
+			res.end(stringified);
 			date = new Date();
 			fs.appendFile('log.txt','\r\nResSent:' + date.getTime());
 		});
@@ -89,17 +93,17 @@ var app = connect()
 			res.end(Points);
 		}
 		else if (cmd.substring(0,4) == "log=") {
-			fs.appendFile('log.txt', cmd.replace("log=","").replace(/rnrn/g,"\r\n") + '\r\n#');
+			fs.appendFile('log.txt', cmd.replace("log=","").replace(/rnrn/g,"\r\n") + '\r\n');
 		} else {
 			var cmdModif = cmd.replace(/%7B/g,"{").replace(/%7D/g,"}").replace(/%22/g,"\u0022").replace(/%5E/g,"\u005E");
 			var cmdObj = JSON.parse(cmdModif);
 			if (cmdObj.type == 'livePts') { // liveTracking status, true or false: starts & stops node getting live points
 				liveTracking = cmdObj.options;
 			} else {
-				fs.appendFile('log.txt','\r\nReqRec:' + date.getTime());
+				fs.appendFile('log.txt','#\r\nReqRec:' + date.getTime());
 				queryDb(res, cmdObj.type, cmdObj.options);
 			}
 		}
-	})
+	});
 
 http.createServer(app).listen(1337);

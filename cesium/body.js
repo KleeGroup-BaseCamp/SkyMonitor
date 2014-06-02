@@ -84,6 +84,7 @@ function request(type, options) {
 		if(xhr_object.readyState == 4) {
 			var date = new Date();
 			log += 'rnrnResRec:' + date.getTime();
+			console.log("Received");
 			display(type, xhr_object.responseText);
 			date = new Date();
 			log += 'rnrnRendered:' + date.getTime();
