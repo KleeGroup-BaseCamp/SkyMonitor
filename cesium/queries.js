@@ -1,19 +1,36 @@
 exports.query = function(coll) {
-	if (coll == "points") {
-		/*return { // France
-			Lon: {'$gt': -4.8, '$lt': 8.3},
-			Lat: {'$gt': 42.2, '$lt': 51.1},
-			Alt: {'$gt': 0}
-		};*/
-		return {};
-	}
-	else if (coll == "zones") {
-		return {$where: "typeof this.Geometry != Array"};
-	}
-	else if (coll == "airWays") {
-		return {$where: "airWaysSearch(this)"};
+	switch(coll) {
+		case "points":
+			/*return { // France
+				Lon: {'$gt': -4.8, '$lt': 8.3},
+				Lat: {'$gt': 42.2, '$lt': 51.1},
+				Alt: {'$gt': 0}
+			};*/
+			return {};
+		case "zones":
+			return {$where: "typeof this.Geometry != Array"};
+		case "airWays":
+			return {$where: "airWaysSearch(this)"};
 	}
 };
+
+exports.proj = function(coll) {
+	switch(coll) {
+		case "points":
+			return {
+				"Lat":1,
+				"Lon":1,
+				"Hdg":1,
+				"Alt":1,
+				"Flight":1,
+				"From":1,
+				"To":1,
+				"Rdr":1
+			};
+		default:
+			return {};
+	}
+}
 
 function convertIfRegex(regexString) {
 	var regex = new RegExp("/.*/.?", "i");

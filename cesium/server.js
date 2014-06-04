@@ -43,11 +43,12 @@ function queryDb(res, coll, cmdOptions) {
 		for (var key in mongoCmdOpts) {
 			query[key] = mongoCmdOpts[key];
 		}
+		var proj = queries.proj(coll);
 		
 		var date = new Date();
 		fs.appendFile('log.txt','\r\nData:' + coll);
 		fs.appendFile('log.txt','\r\nQuerDB:' + date.getTime());
-		collection.find(query, options).toArray(function(err, results) {
+		collection.find(query, proj, options).toArray(function(err, results) {
 			console.log("Got results");
 			date = new Date();
 			fs.appendFile('log.txt','\r\nDataRec:' + date.getTime());
