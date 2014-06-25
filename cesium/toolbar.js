@@ -1,55 +1,71 @@
 function createToolbar() {
 
-	Sandcastle.addToolbarButton('myRoutes', function() {
-		if (!routes) {
-			if (Object.keys(routeIdents).length == 0) {
-				request('airWays');
-			} else {
-				reallyDisplayRoutes();
-			}
-		} else {
-			displayedPolylines.removeAll();
-			routesRegionCenterLongitude = undefined;
-		}
-		routes = !routes;
-	});
-
-	Sandcastle.addToolbarButton('liveTracking', function() {
-		if (liveTracking == "false") {
-			liveTracking = "true";
-			request('livePts', true);
-		}
-		else if (liveTracking == "true") {
-			liveTracking = "stopped";
-			request('livePts', false);
-		}
-		else { //liveTracking == "stopped"
-			liveTracking = "false";
-			billboards.removeAll();
-		}
-	});
-
-	Sandcastle.addToolbarButton('radarCov', function() {
-		if (!radarCov) {
-			var colors = {};
-			for (var i = 0; i < billboards.length; i++) {
-				var point = billboards.get(i);
-				if (Cesium.defined(colors[point.id.Rdr])) {
-					point.color = colors[point.id.Rdr];
+	require(['dijit/form/Button'], function (Button) {
+		var myRoutes = new Button({
+			label: "myRoutes",
+			onClick: function() {
+				if (!routes) {
+					if (Object.keys(routeIdents).length == 0) {
+						request('airWays');
+					} else {
+						reallyDisplayRoutes();
+					}
+				} else {
+					displayedPolylines.removeAll();
+					routesRegionCenterLongitude = undefined;
 				}
-				else {
-					var newColor = new Cesium.Color();
-					Cesium.Color.fromRandom({alpha:1}, newColor);
-					point.color = newColor;
-					colors[point.id.Rdr] = newColor;
+				routes = !routes;
+			}
+		});
+		
+		var liveTrackingButton = new Button({
+			label: "liveTracking",
+			onClick: function() {
+				switch (liveTracking) {
+					case "false":
+						liveTracking = "true";
+						request('livePts', true);
+						break;
+					case "true":
+						liveTracking = "stopped";
+						request('livePts', false);
+						break;
+					default:
+						liveTracking = "false";
+						billboards.removeAll();
 				}
 			}
-		} else {
-			for (var i = 0; i < billboards.length; i++) {
-				billboards.get(i).color = new Cesium.Color(1, 1, 1, 1);
+		});
+		
+		var radarCovButton = new Button({
+			label: "radarCov",
+			onClick: function() {
+				if (!radarCov) {
+					var colors = {};
+					for (var i = 0; i < billboards.length; i++) {
+						var point = billboards.get(i);
+						if (Cesium.defined(colors[point.id.Rdr])) {
+							point.color = colors[point.id.Rdr];
+						}
+						else {
+							var newColor = new Cesium.Color();
+							Cesium.Color.fromRandom({alpha:1}, newColor);
+							point.color = newColor;
+							colors[point.id.Rdr] = newColor;
+						}
+					}
+				} else {
+					for (var i = 0; i < billboards.length; i++) {
+						billboards.get(i).color = new Cesium.Color(1, 1, 1, 1);
+					}
+				}
+				radarCov = !radarCov;
 			}
-		}
-		radarCov = !radarCov;
+		});
+		
+		document.getElementById('toolbar').appendChild(myRoutes.domNode);
+		document.getElementById('toolbar').appendChild(liveTrackingButton.domNode);
+		document.getElementById('toolbar').appendChild(radarCovButton.domNode);
 	});
 
 	/*
@@ -82,7 +98,7 @@ function createToolbar() {
 			"Faster"
 		],
 		[
-			"Flight1, flight2...",
+			"Flight1, /flight2/i...",
 			"From1, from2...",
 			"To1, to2...",
 			"Start date YYYY-MM-DD HH:MM",

@@ -24,21 +24,30 @@ function inputBlur(i){
 }
 
 function createRemoveButton(field) {
-	switch (field) {
-		case "zones":
-			Sandcastle.addToolbarButton('Remove all', function() {
-				for (var key in zonePrimitives) {
-					primitives.remove(zonePrimitives[key]);
-				}
-				zonePrimitives = [];
-			}, field + 'Menu');
-		break;
-		case "points":
-			Sandcastle.addToolbarButton('Remove all', function() {
-				billboards.removeAll();
-				points = !points;
-			}, field + 'Menu');
-	}
+	require(['dijit/form/Button'], function (Button) {
+		var fct;
+		switch (field) {
+			case "zones":
+				fct = function() {
+					for (var key in zonePrimitives) {
+						primitives.remove(zonePrimitives[key]);
+					}
+					zonePrimitives = [];
+				};
+				break;
+			case "points":
+				fct = function() {
+					billboards.removeAll();
+					points = !points;
+				};
+		}
+		
+		var button = new Button({
+			label: "Remove all",
+			onClick: fct
+		});
+		document.getElementById(field + 'Menu').appendChild(button.domNode);
+	});
 }
 
 /**
