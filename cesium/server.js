@@ -96,7 +96,8 @@ var app = connect()
 		}
 		else if (cmd.substring(0,4) == "log=") {
 			fs.appendFile('log.txt', cmd.replace("log=","").replace(/rnrn/g,"\r\n"));
-		} else {
+		}
+		else if (cmd != "favicon.ico") {
 			var cmdModif = cmd.replace(/%7B/g,"{").replace(/%7D/g,"}").replace(/%22/g,"\u0022").replace(/%5E/g,"\u005E");
 			var cmdObj = JSON.parse(cmdModif);
 			if (cmdObj.type == 'livePts') { // liveTracking status, true or false: starts & stops node getting live points
