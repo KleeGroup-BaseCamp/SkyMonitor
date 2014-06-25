@@ -27,6 +27,11 @@ exports.proj = function(coll) {
 				"To":1,
 				"Rdr":1
 			};
+		case "airWays":
+			return {
+				"Ident": 1,
+				"Legs": 1
+			}
 		default:
 			return {};
 	}

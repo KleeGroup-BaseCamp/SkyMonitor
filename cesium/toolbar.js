@@ -2,9 +2,14 @@ function createToolbar() {
 
 	Sandcastle.addToolbarButton('myRoutes', function() {
 		if (!routes) {
-			request('airWays');
+			if (Object.keys(routeIdents).length == 0) {
+				request('airWays');
+			} else {
+				reallyDisplayRoutes();
+			}
 		} else {
-			polylines.removeAll();
+			displayedPolylines.removeAll();
+			routesRegionCenterLongitude = undefined;
 		}
 		routes = !routes;
 	});
@@ -51,7 +56,19 @@ function createToolbar() {
 	 * advancedToolbar.js
 	 */
 		 
-	createDDMenu('zones', ["Name", "Ctry", "Type"], ["Name1, /name2/i...", "Country1, /country2/i...", "Type1, /type2/i..."]);
+	createDDMenu(
+		'zones',
+		[
+			"Name",
+			"Ctry",
+			"Type"
+		],
+		[
+			"Name1, /name2/i...",
+			"Country1, /country2/i...",
+			"Type1, /type2/i..."
+		]
+	);
 	createDDMenu(
 		'points',
 		[
@@ -72,7 +89,7 @@ function createToolbar() {
 			"Stop date YYYY-MM-DD HH:MM",
 			"Floor in feet",
 			"Ceiling in feet",
-			"Min speed in knots"
+			"Min. speed in knots"
 		]
 	);
 
@@ -80,6 +97,21 @@ function createToolbar() {
 	 * Terrain Button
 	 */
 
+	function createTerrainMenu(terrainProviders) {
+        var terrainProviderOptions = terrainProviders.map(function(terrainProvider) {
+            return {
+                text : terrainProvider.name
+            };
+        });
+
+        Sandcastle.addToolbarMenu(terrainProviderOptions, function() {
+			if (altitudeRatio == 10) {
+				alert("Attention! Vous êtes en mode altitudes x10 !");
+			}
+            globe.terrainProvider = terrainProviders[this.selectedIndex].provider;
+        }, 'terrainMenu');
+	}
+	 
 	var cesiumTerrainProvider = new Cesium.CesiumTerrainProvider({
 		url : 'http://cesiumjs.org/smallterrain',
 		credit : 'Terrain data courtesy Analytical Graphics, Inc.'

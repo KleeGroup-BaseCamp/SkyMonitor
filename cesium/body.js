@@ -11,9 +11,17 @@ var primitives = scene.primitives;
 
 var billboards = new Cesium.BillboardCollection();
 primitives.add(billboards);
+
+// polylines contains all the polylines of the db and is not supposed to be rendered. 
 var polylines = new Cesium.PolylineCollection();
-primitives.add(polylines);
+var displayedPolylines = new Cesium.PolylineCollection();
+primitives.add(displayedPolylines);
 var zonePrimitives = [];
+// routeFaces contains 4 elements corresponding to the Earth faces,
+// with the references to routePrimitives {<ident>: true}
+var routeFaces = [[], [], [], []];
+var routesRegionCenterLongitude;
+var routeIdents = {}; // for de-duplication
 
 var liveTracking = "false";
 var points = false;
@@ -37,7 +45,7 @@ function newXhrObject() {
  
 function sendLog(log) {
 	var xhr_object = newXhrObject();
-	xhr_object.open("GET", "log=" + log, true); 
+	xhr_object.open("GET", "log=" + log, true);
 	xhr_object.timeout = 1000;
 	xhr_object.send(null);
 }
@@ -83,11 +91,11 @@ function request(type, options) {
 	xhr_object.onreadystatechange = function() { 
 		if(xhr_object.readyState == 4) {
 			var date = new Date();
-			log += 'rnrnResRec:' + date.getTime();
+			log += 'ResRec:' + date.getTime() + 'rnrn';
 			console.log("Received");
 			display(type, xhr_object.responseText);
 			date = new Date();
-			log += 'rnrnRendered:' + date.getTime();
+			log += 'Rendered:' + date.getTime() + 'rnrn';
 			sendLog(log);
 			log = "";
 		}
@@ -95,7 +103,7 @@ function request(type, options) {
 	
 	var date = new Date();
 	xhr_object.send(null);
-	log += 'rnrnReqSent:' + date.getTime();
+	log += 'ReqSent:' + date.getTime() + 'rnrn';
 }
 
 /*
@@ -164,15 +172,24 @@ viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 		else if (pickedObject.primitive.id.Type == "airWay") {
 			var route = [];
 			var i = 0;
-			while (i < polylines.length) {
-				var leg = polylines.get(i);
+			while (i < displayedPolylines.length) {
+				var leg = displayedPolylines.get(i);
 				if (leg.id.Ident != pickedObject.primitive.id.Ident) {
-					polylines.remove(leg);
+					displayedPolylines.remove(leg);
 				}
 				else {i++;}
 			}
 		}
 	}
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+	
+	/*
+	 * Routes display
+	 */
+document.getElementById('cesiumContainer').onmouseup = function(event) {
+	if (routes && event.which == 1) {
+		reallyDisplayRoutes();
+	}
+};
 
 Sandcastle.finishedLoading();

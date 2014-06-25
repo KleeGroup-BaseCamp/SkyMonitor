@@ -23,27 +23,13 @@ function zonesColors(type) {
 	}
 }
 
-function createTerrainMenu(terrainProviders) {
-        var terrainProviderOptions = terrainProviders.map(function(terrainProvider) {
-            return {
-                text : terrainProvider.name
-            };
-        });
-
-        Sandcastle.addToolbarMenu(terrainProviderOptions, function() {
-			if (altitudeRatio == 10) {
-				alert("Attention! Vous êtes en mode altitudes x10 !");
-			}
-            globe.terrainProvider = terrainProviders[this.selectedIndex].provider;
-        }, 'terrainMenu');
-}
-
 function addPlanesToPrimitives(collection, type) {
 	var image = new Image();
 	image.onload = function() {
 		billboards.removeAll();
 		
-		var textureAtlas = scene.createTextureAtlas({
+		var textureAtlas = new Cesium.TextureAtlas({
+			scene: scene,
 			image: image
 		});
 		billboards.textureAtlas = textureAtlas;
@@ -87,6 +73,21 @@ function displayLive(objectString) {
 	addPlanesToPrimitives(newPoints, "livePts");
 }
 
+function setIdent(geometry) {
+	if (typeof routeIdents[geometry.Ident] !== 'undefined')  {
+		geometry.Ident += "ot";
+	}
+}
+
+function addFace(point) {
+	var Lon = parseFloat(point[0]);
+	if (Lon < 0) {
+		Lon += 360;
+	}
+	routeFaces[Math.floor(Lon/90)][polylines.length] = true;
+	routeFaces[Math.floor((Lon/90 + 1)%4)][polylines.length] = true;
+}
+
 function scrollSegments(position, segments, polylinePoints) {
 	for (var i = 0; i < segments.length; i++) {
 		if (segments[i][1].toString() == position.toString()) {
@@ -94,6 +95,9 @@ function scrollSegments(position, segments, polylinePoints) {
 		}
 		if (segments[i][0].toString() == position.toString()) {
 			var newPos = segments[i][1];
+			
+			addFace(newPos);
+			
 			polylinePoints.unshift(newPos);
 			segments.splice(i,1);
 			return newPos;
@@ -103,6 +107,44 @@ function scrollSegments(position, segments, polylinePoints) {
 	return "reversed";
 }
 
+function reallyDisplayRoutes() {
+	var currentLon = Cesium.Math.toDegrees(ellipsoid.cartesianToCartographic(scene.camera.position).longitude);
+	if (currentLon < 0) {
+		currentLon += 360;
+	}
+	var delta = Math.abs(currentLon - routesRegionCenterLongitude);
+	if (delta > 90 && delta < 270 || typeof routesRegionCenterLongitude === 'undefined') {
+		displayedPolylines.removeAll();
+
+		if (currentLon/90%1 < 0.5) {
+			routesRegionCenterLongitude = Math.floor(currentLon/90)
+		} else {
+			routesRegionCenterLongitude = Math.ceil(currentLon/90)%4
+		}
+		
+		for (var key in routeFaces[routesRegionCenterLongitude]) {
+			if (routeFaces[routesRegionCenterLongitude][key]) {
+				// removeAll() destroys objects.
+				// There is no Cesium object clone method.
+				// Polyline.material is a Cesium object.
+				// That is why polylines are "cloned" member by member without pol.material.
+				var pol = polylines.get(key);
+				displayedPolylines.add({
+					//show: pol.show,
+					material: Cesium.Material.fromType('Color', {
+							color : Cesium.Color.WHITE
+						}),
+					//width: pol.width,
+					//loop: pol.loop,
+					positions: pol.positions,
+					id: pol.id
+				});
+			}
+		}
+		routesRegionCenterLongitude *= 90;
+	}
+}
+	
 function display(type, objectString) {
 	// (String)type is the name of MongoDB Collection
 	var geometriesArray = JSON.parse(objectString);
@@ -110,36 +152,44 @@ function display(type, objectString) {
 		case "points":
 			addPlanesToPrimitives(geometriesArray, type);
 			break;
-		case "airWays":
+		case "airWays":			
+			// for each route
+			// routes are NOT path-connected and NOT isomorphic to a segment
 			for (var key in geometriesArray) {
 				var legs = geometriesArray[key].Legs;
 				
 				var segments = [];
 				for (var legKey in legs) {
-					segments.push(legs[legKey].Line.coordinates)
+					segments.push(legs[legKey].Line.coordinates);
 				}
 				
 				while (segments.length > 0) {
 					var polylinePoints = [];
-					var pos = segments[0][0];
+					
 					polylinePoints[0] = segments[0][0];
 					polylinePoints[1] = segments.shift()[1];
 					
+					var pos = polylinePoints[0];
+					addFace(pos);
 					while (pos != "reversed") {
 						pos = scrollSegments(pos, segments, polylinePoints);
 					}
 					pos = polylinePoints[0];
+					addFace(pos);
 					while (pos != "reversed") {
 						pos = scrollSegments(pos, segments, polylinePoints);
 					}
 					
+					
 					var polylinePos = [];
 					for (var i = 0; i < polylinePoints.length; i++) {
-						polylinePos.push(new Cesium.Cartographic.fromDegrees(polylinePoints[i][0], polylinePoints[i][1]));
+						polylinePos.push(new Cesium.Cartesian3.fromDegrees(polylinePoints[i][0], polylinePoints[i][1]));
 					}
 					
+					setIdent(geometriesArray[key]);
+					routeIdents[geometriesArray[key].Ident] = true;
 					polylines.add({
-						positions: ellipsoid.cartographicArrayToCartesianArray(polylinePos),
+						positions: polylinePos,
 						material: Cesium.Material.fromType('Color', {
 							color : Cesium.Color.WHITE
 						}),
@@ -150,6 +200,7 @@ function display(type, objectString) {
 					});
 				}
 			}
+			reallyDisplayRoutes();
 			break;
 		case "zones":
 			var zoneInstances = [];
