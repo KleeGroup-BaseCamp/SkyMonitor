@@ -49,6 +49,8 @@ function queryDb(res, coll, cmdOptions) {
 		var date = new Date();
 		fs.appendFile('log.txt','Data:' + coll + '\r\n');
 		fs.appendFile('log.txt','QuerDB:' + date.getTime() + '\r\n');
+		console.log("Query: " + JSON.stringify(query) + '\r\n'
+			+ "Opts :" + JSON.stringify(options));
 		collection.find(query, proj, options).toArray(function(err, results) {
 			console.log("Got results");
 			date = new Date();
@@ -96,9 +98,9 @@ var app = connect()
 		}
 		else if (cmd.substring(0,4) == "log=") {
 			fs.appendFile('log.txt', cmd.replace("log=","").replace(/rnrn/g,"\r\n"));
-		}
-		else if (cmd != "favicon.ico") {
+		} else {
 			var cmdModif = cmd.replace(/%7B/g,"{").replace(/%7D/g,"}").replace(/%22/g,"\u0022").replace(/%5E/g,"\u005E");
+			console.log("Cmd: " + cmdModif);
 			var cmdObj = JSON.parse(cmdModif);
 			if (cmdObj.type == 'livePts') { // liveTracking status, true or false: starts & stops node getting live points
 				liveTracking = cmdObj.options;

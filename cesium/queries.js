@@ -107,7 +107,6 @@ exports.prepare = function(coll, cmdOptions) {
 				result[key] = cmdOptions[key];
 		}
 	}
-	console.log(result);
 	return result;
 }
 
