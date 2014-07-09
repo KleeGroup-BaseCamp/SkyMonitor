@@ -16,12 +16,13 @@ primitives.add(billboards);
 var polylines = new Cesium.PolylineCollection();
 var displayedPolylines = new Cesium.PolylineCollection();
 primitives.add(displayedPolylines);
-var zonePrimitives = [];
 // routeFaces contains 4 elements corresponding to the Earth faces,
 // with the references to routePrimitives {<ident>: true}
 var routeFaces = [[], [], [], []];
 var routesRegionCenterLongitude;
 var routeIdents = {}; // for de-duplication
+
+var zonePrimitives = [];
 
 var liveTracking = "false";
 var points = false;

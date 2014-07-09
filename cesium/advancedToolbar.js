@@ -71,9 +71,15 @@ function createDDMenu(field, attrArray, hintArray) {
 			domConstruct.place('<input type="text" id="' + attrArray[i] + '" value="' + hintArray[i] + '" style="color:#888; width:20em;" onfocus="inputFocus(this)" onblur="inputBlur(this)"><br>', field + 'Menu');
 		}
 		domConstruct.place('<input type="text" id="' + field + 'Limit" value="Max. results" style="color:#888; width:20em;" onfocus="inputFocus(this)" onblur="inputBlur(this)"><br>', field + 'Menu');
-		Sandcastle.addToolbarButton('Search', function() {
-			requestZones(field, attrArray);
-		}, field + 'Menu');
+
+		require(['dijit/form/Button'], function (Button) {
+			var searchButton = new Button({
+				label: "Search",
+				onClick: function() {requestZones(field, attrArray);}
+			});
+			document.getElementById(field + 'Menu').appendChild(searchButton.domNode);
+		});
+
 		createRemoveButton(field);
 	});
 }

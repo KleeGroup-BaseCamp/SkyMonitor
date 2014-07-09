@@ -77,7 +77,7 @@ public abstract class Case {
 	public static void createPolygonWithPoint (BasicDBObject occ, double[] point) {
 		String DPs;
 		DPs = "{type: 'Polygon', coordinates: [[ ["
-	+ Double.toString(point[0])+ ","+ Double.toString(point[1]) +"] ]]}";
+			+ Double.toString(point[0]) + "," + Double.toString(point[1]) + "] ]]}";
 		occ.put("FirstDP", point);
 		DBObject DPo = (DBObject)JSON.parse(DPs);
 		occ.put("Geometry", DPo);
