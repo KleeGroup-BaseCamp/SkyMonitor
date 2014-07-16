@@ -223,15 +223,16 @@ function display(type, objectString) {
 						geometry: Cesium.PolygonGeometry.fromPositions({
 							positions: positions,
 							vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
-							extrudedHeight: geometriesArray[key].Ceiling*altitudeRatio,
-							height: Cesium.Math.sign(geometriesArray[key].Floor)*geometriesArray[key].Floor*altitudeRatio
+							extrudedHeight: Math.abs(geometriesArray[key].Ceiling)*altitudeRatio,
+							height: Math.abs(geometriesArray[key].Floor)*altitudeRatio
 						}),
 						attributes: {
 							color: zonesColors(geometriesArray[key].Type)
 						},
 						id: {
 							Name: geometriesArray[key].Name,
-							Type: geometriesArray[key].Type
+							Type: geometriesArray[key].Type,
+							Summit: Math.abs(geometriesArray[key].Ceiling)*altitudeRatio
 						}
 					});
 					zonePrimitive = new Cesium.Primitive({

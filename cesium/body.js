@@ -127,22 +127,27 @@ primitives.add(labels);
 viewer.screenSpaceEventHandler.setInputAction(function(movement) {
 	var pickedObject = scene.pick(movement.endPosition);
 	if (Cesium.defined(pickedObject)) {
+		var zPosition;
 		if (Cesium.defined(pickedObject.primitive.geometryInstances)) { // zone
 			label.text =
 				pickedObject.primitive.geometryInstances.id.Name + " - " +
 				pickedObject.primitive.geometryInstances.id.Type;
+			zPosition = pickedObject.primitive.geometryInstances.id.Summit;
 		} else if (Cesium.defined(pickedObject.primitive.id.Flight)) { // point
 			label.text =
 				pickedObject.primitive.id.Flight + " - " +
 				pickedObject.primitive.id.From + " - " +
 				pickedObject.primitive.id.To + " - " +
 				pickedObject.primitive.id.Rdr;
+			zPosition = 0;
 		} else if (Cesium.defined(pickedObject.primitive.id.Type)
 			&& pickedObject.primitive.id.Type == "airWay") {
 			label.text = pickedObject.primitive.id.Ident;
 		}
 		var cartesian = scene.camera.pickEllipsoid(movement.endPosition, ellipsoid);
-		label.position = cartesian;
+		var cartographic = ellipsoid.cartesianToCartographic(cartesian);
+		cartographic.height = zPosition;
+		label.position = ellipsoid.cartographicToCartesian(cartographic);
 	} else {
 		label.text = '';
 	}

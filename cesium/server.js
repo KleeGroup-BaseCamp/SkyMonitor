@@ -1,3 +1,5 @@
+RegExp.prototype.toJSON = RegExp.prototype.toString;
+
 var http = require('http');
 var connect = require('connect');
 var url = require('url');
