@@ -116,28 +116,29 @@ function createToolbar() {
 	function createTerrainMenu(terrainProviders) {
         var terrainProviderOptions = terrainProviders.map(function(terrainProvider) {
             return {
-                text : terrainProvider.name
+                text: terrainProvider.name,
+				onselect: function() {
+					if (altitudeRatio == 10) {
+						alert("Attention! Vous êtes en mode altitudes x10 !");
+					}
+					globe.terrainProvider = terrainProvider.provider;
+				}
             };
         });
 
-        Sandcastle.addToolbarMenu(terrainProviderOptions, function() {
-			if (altitudeRatio == 10) {
-				alert("Attention! Vous êtes en mode altitudes x10 !");
-			}
-            globe.terrainProvider = terrainProviders[this.selectedIndex].provider;
-        }, 'terrainMenu');
+        Sandcastle.addToolbarMenu(terrainProviderOptions, 'terrainMenu');
 	}
-	 
-	var cesiumTerrainProvider = new Cesium.CesiumTerrainProvider({
-		url : 'http://cesiumjs.org/smallterrain',
-		credit : 'Terrain data courtesy Analytical Graphics, Inc.'
-	});
-
+	
 	var ellipsoidProvider = new Cesium.EllipsoidTerrainProvider();
 
 	var vrTheWorldProvider = new Cesium.VRTheWorldTerrainProvider({
 		url : 'http://www.vr-theworld.com/vr-theworld/tiles1.0.0/73/',
 		credit : 'Terrain data courtesy VT MÄK'
+	});	
+	
+	var cesiumTerrainProvider = new Cesium.CesiumTerrainProvider({
+		url : 'http://cesiumjs.org/smallterrain',
+		credit : 'Terrain data courtesy Analytical Graphics, Inc.'
 	});
 
 	var terrainProviders = [
@@ -162,11 +163,12 @@ function createToolbar() {
 
 	var altitudeOptions = altitudes.map(function(altitude) {
 		return {
-			text : altitude.name
+			text: altitude.name,
+			onselect: function() {
+				altitudeRatio = altitude.ratio;
+			}
 		};
 	});
 
-	Sandcastle.addToolbarMenu(altitudeOptions, function() {
-		altitudeRatio = altitudes[this.selectedIndex].ratio;
-	}, 'terrainMenu');
+	Sandcastle.addToolbarMenu(altitudeOptions, 'terrainMenu');
 }

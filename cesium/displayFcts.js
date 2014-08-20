@@ -24,43 +24,33 @@ function zonesColors(type) {
 }
 
 function addPlanesToPrimitives(collection, type) {
-	var image = new Image();
-	image.onload = function() {
-		billboards.removeAll();
-		
-		var textureAtlas = new Cesium.TextureAtlas({
-			scene: scene,
-			image: image
-		});
-		billboards.textureAtlas = textureAtlas;
-		
-		var A, B, C, D, E, F, G, H;
-		if (type == "livePts") {
-			A = 1, B = 2, C = 3, D = 4, E = 13, F = 11, G = 12, H = 7;
-		} else { // type == "points"
-			A = 'Lat', B = 'Lon', C = 'Hdg', D = 'Alt', E = 'Flight', F = 'From', G = 'To', H = 'Rdr';
-		}
-		
-		for (var key in collection) {
-			billboards.add({
-				imageIndex: 0,
-				position: ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(
-					collection[key][B],						//Lon
-					collection[key][A],						//Lat
-					collection[key][D]*altitudeRatio*0.3048	//Alt
-				)),
-				rotation: -Cesium.Math.toRadians(collection[key][C]),
-				alignedAxis: Cesium.Cartesian3.UNIT_Z,
-				id: {
-					Flight: collection[key][E],
-					From: collection[key][F],
-					To: collection[key][G],
-					Rdr: collection[key][H]
-				}
-			});
-		}
+	billboards.removeAll();
+	
+	var A, B, C, D, E, F, G, H;
+	if (type == "livePts") {
+		A = 1, B = 2, C = 3, D = 4, E = 13, F = 11, G = 12, H = 7;
+	} else { // type == "points"
+		A = 'Lat', B = 'Lon', C = 'Hdg', D = 'Alt', E = 'Flight', F = 'From', G = 'To', H = 'Rdr';
 	}
-	image.src = './plane.gif';
+	
+	for (var key in collection) {
+		billboards.add({
+			image: './plane.gif',
+			position: ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(
+				collection[key][B],						//Lon
+				collection[key][A],						//Lat
+				collection[key][D]*altitudeRatio*0.3048	//Alt
+			)),
+			rotation: -Cesium.Math.toRadians(collection[key][C]),
+			alignedAxis: Cesium.Cartesian3.UNIT_Z,
+			id: {
+				Flight: collection[key][E],
+				From: collection[key][F],
+				To: collection[key][G],
+				Rdr: collection[key][H]
+			}
+		});
+	}
 }
 
 function displayLive(objectString) {
