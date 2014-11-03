@@ -1,5 +1,4 @@
 "use strict";
-Cesium.BingMapsApi.defaultKey = "Aqf4DYbiHt7w-dGnw9-Cp3glX221srHN6q7gDyFvS4q1dOCFfFuShSXyEhz_xrwW";
 
 var viewer = new Cesium.Viewer('cesiumContainer');
 var scene = viewer.scene;
